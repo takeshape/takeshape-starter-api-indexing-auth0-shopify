@@ -1,0 +1,8 @@
+export type LineItem {
+    quantity: Int
+    variantId: String
+}
+
+export type CheckoutCreateInput {
+    lineItems: [LineItem]
+}

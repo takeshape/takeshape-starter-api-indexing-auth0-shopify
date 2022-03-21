@@ -2,7 +2,7 @@ import { Heading, Divider, Alert, Spinner, Container } from '@theme-ui/component
 import { Page } from 'components/layout';
 import { ProductList } from 'components/products';
 import { takeshapeApiUrl, takeshapeApiKey } from 'lib/config';
-import { GetStripeProducts } from 'lib/queries';
+import { GetShopifyAndRechargeProducts } from 'lib/queries';
 import { createApolloClient } from 'lib/apollo';
 
 function HomePage({ products, error }) {
@@ -11,13 +11,15 @@ function HomePage({ products, error }) {
       <Heading as="h1">Products</Heading>
       <Divider />
 
-      {!products && (
+      {!products.shopifyProducts && (
         <Container variant="layout.loading">
           <Spinner />
         </Container>
       )}
 
-      {products && <ProductList products={products} />}
+      {products.shopifyProducts && (
+        <ProductList shopifyProducts={products.shopifyProducts} rechargeProducts={products.rechargeProducts} />
+      )}
 
       {error && (
         <>
@@ -32,25 +34,32 @@ function HomePage({ products, error }) {
 export async function getStaticProps() {
   const client = createApolloClient(takeshapeApiUrl, () => takeshapeApiKey);
 
-  let products = [];
+  const products = {
+    shopifyProducts: [],
+    rechargeProducts: []
+  };
   let error = null;
 
   try {
     const { data } = await client.query({
-      query: GetStripeProducts
+      query: GetShopifyAndRechargeProducts,
+      variables: {
+        first: 20
+      }
     });
 
     if (data.errors) {
       error = data.errors;
     } else {
-      products = data.products;
+      products.shopifyProducts = data.products.shopify.edges;
+      products.rechargeProducts = data.products.recharge.products;
     }
   } catch (err) {
     console.error(err);
     error = Array.isArray(err) ? err.map((e) => e.message).join() : err.message;
+  } finally {
+    return { props: { products, error } };
   }
-
-  return { props: { products, error } };
 }
 
 export default HomePage;

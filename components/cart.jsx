@@ -9,6 +9,8 @@ import { CreateMyCheckoutSession } from 'lib/queries';
 import { useCart } from 'lib/cart';
 import getStripe from 'lib/utils/stripe';
 import { ProductPrice, ProductQuantitySelect } from './products';
+import { isTypeSystemExtensionNode } from 'graphql';
+import { client } from 'lib/utils/shopify';
 
 export const CartIcon = () => {
   const {
@@ -50,7 +52,7 @@ const CartItem = ({ product, onChangeQuantity, onClickRemove }) => {
           {product.images?.[0] ? (
             <Image
               alt={`Image of ${product.name}`}
-              src={product.images?.[0]}
+              src={product.images?.[0].node.url}
               width={100}
               height={100}
               objectFit="fill"
@@ -87,11 +89,10 @@ export const CartSidebar = () => {
 
   const { user, loginWithRedirect } = useAuth0();
   const [setCheckoutPayload, { data: checkoutData }] = useMutation(CreateMyCheckoutSession);
-  const cartCurrency = items?.[0]?.price?.currency ?? '';
 
-  const cartTotal = items
-    .map((item) => item.price.unitAmount * item.quantity)
-    .reduce((prev, current) => prev + current, 0);
+  const cartCurrency = items?.[0]?.priceRangeV2.maxVariantPrice.currencyCode ?? 'USD';
+
+  const cartTotal = items.map((item) => item.price * item.quantity).reduce((prev, current) => prev + current, 0);
 
   const handleRemove = (itemIndex) => {
     removeFromCart(itemIndex);
@@ -106,19 +107,16 @@ export const CartSidebar = () => {
       loginWithRedirect({ appState: { returnTo: '/_checkout' } });
       return;
     }
-    setCheckoutPayload({
-      variables: getCheckoutPayload(items, window.location.href)
-    });
+
+    setCheckoutPayload({ variables: getCheckoutPayload(items) });
   };
 
   useEffect(() => {
-    const doCheckout = async () => {
-      const stripe = await getStripe();
-      stripe.redirectToCheckout({
-        sessionId: checkoutData.session.id
-      });
+    const doCheckout = () => {
+      window.location.assign(checkoutData.checkout.webUrl);
     };
-    if (checkoutData?.session) {
+
+    if (checkoutData?.checkout) {
       doCheckout();
     }
   }, [checkoutData]);

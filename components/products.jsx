@@ -16,28 +16,33 @@ import orderBy from 'lodash/orderBy';
 import { range } from 'lib/utils/range';
 import { pluralizeText, formatPrice } from 'lib/utils/text';
 import { useCart } from 'lib/cart';
+import { base } from '@theme-ui/presets';
 
 const showCartTimeout = 3000;
 const oneTimePurchase = 'one-time';
 const recurringPurchase = 'recurring';
 const intervalOrderMap = ['day', 'week', 'month', 'year'];
 
-export const ProductPrice = ({ price, quantity }) => {
+export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity }) => {
   quantity = quantity ?? 1;
 
   const recurringText =
-    price.recurring &&
-    `every ${pluralizeText(price.recurring.intervalCount, price.recurring.interval, `${price.recurring.interval}s`)}`;
-
+    purchaseType == recurringPurchase
+      ? `every ${pluralizeText(
+          rechargeProduct.subscription_defaults.charge_interval_frequency,
+          rechargeProduct.subscription_defaults.order_interval_unit,
+          `${rechargeProduct.subscription_defaults.order_interval_unit}s`
+        )}`
+      : null;
   return (
     <Box sx={{ fontWeight: 'bold' }}>
-      {formatPrice(price.currency, price.unitAmount * quantity)} {recurringText}
+      {formatPrice('usd', price * quantity)} {recurringText}
     </Box>
   );
 };
 
-export const ProductImage = ({ images }) => {
-  return images?.[0] ? <AspectImage src={images[0]} ratio={1} /> : null;
+export const ProductImage = (images) => {
+  return images.images[0].node.url ? <AspectImage src={images.images[0].node.url} ratio={1} /> : null;
 };
 
 export const ProductPaymentToggle = ({ purchaseType, onChange }) => {
@@ -55,16 +60,19 @@ export const ProductPaymentToggle = ({ purchaseType, onChange }) => {
   );
 };
 
-export const ProductRecurringSelect = ({ currentPrice, recurringPayments, onChange }) => {
+export const ProductRecurringSelect = ({ currentPrice, rechargeProduct, onChange }) => {
   return (
     <Box>
       Subscription
-      <Select value={currentPrice.id} onChange={onChange}>
-        {recurringPayments.map(({ id, recurring: { interval, intervalCount } }) => (
-          <option key={id} value={id}>
-            Every {pluralizeText(intervalCount, interval, `${interval}s`)}
-          </option>
-        ))}
+      <Select value={currentPrice} onChange={onChange}>
+        <option value={rechargeProduct.shopify_product_id}>
+          Every{' '}
+          {pluralizeText(
+            rechargeProduct.subscription_defaults.charge_interval_frequency,
+            rechargeProduct.subscription_defaults.order_interval_unit,
+            `${rechargeProduct.subscription_defaults.order_interval_unit}s`
+          )}
+        </option>
       </Select>
     </Box>
   );
@@ -84,30 +92,53 @@ export const ProductQuantitySelect = ({ defaultValue, onChange }) => {
   );
 };
 
-export const ProductCard = ({ product }) => {
+export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
   const {
     isCartOpen,
     actions: { addToCart, openCart, toggleCart }
   } = useCart();
 
-  const { name, prices, description, images } = product;
-
-  const oneTimePayment = prices?.find((p) => !p.recurring);
-  const recurringPayments = orderBy(
-    prices?.filter((p) => p.recurring),
-    [(v) => intervalOrderMap.indexOf(v.recurring.interval), 'recurring.intervalCount'],
-    ['asc', 'asc']
+  const [recurringText, setRecurringText] = useState(
+    rechargeProduct
+      ? `every ${pluralizeText(
+          rechargeProduct.subscription_defaults.charge_interval_frequency,
+          rechargeProduct.subscription_defaults.order_interval_unit,
+          `${rechargeProduct.subscription_defaults.order_interval_unit}s`
+        )}`
+      : null
   );
 
-  const [purchaseType, setPurchaseType] = useState(oneTimePayment ? oneTimePurchase : recurringPurchase);
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(oneTimePayment ? oneTimePayment : recurringPayments?.[0]);
+  const { name, priceRangeV2, description, images: imageEdgesContainer } = shopifyProduct;
 
-  if (!prices.length) {
+  const unitAmount = priceRangeV2.maxVariantPrice.amount;
+
+  //This code assumes a product will have a one time payment price and a
+  //list of subscription prices (recurring prices).
+  //Here we get the onetimepayment price out of the list of prices
+  //Then order the subscription prices in ascending order.
+  // const oneTimePayment = prices?.find((p) => !p.recurring);
+  // const recurringPayments = orderBy(
+  //   prices?.filter((p) => p.recurring),
+  //   [(v) => intervalOrderMap.indexOf(v.recurring.interval), 'recurring.intervalCount'],
+  //   ['asc', 'asc']
+  // );
+
+  const [purchaseType, setPurchaseType] = useState(
+    rechargeProduct && rechargeProduct.subscription_defaults.storefront_purchase_options == 'subscription_and_onetime'
+      ? recurringPurchase
+      : oneTimePurchase
+  );
+  const [quantity, setQuantity] = useState(1);
+  const basePrice = Number(priceRangeV2.maxVariantPrice.amount);
+  const discount =
+    rechargeProduct && rechargeProduct.discount_amount ? (rechargeProduct.discount_amount / 100) * basePrice : 0;
+  const subscriptionPrice = basePrice - discount;
+  const [price, setPrice] = useState(purchaseType == oneTimePurchase ? basePrice : subscriptionPrice);
+  if (!basePrice) {
     return null;
   }
 
-  const findPriceById = (priceId) => prices.find((p) => p.id === priceId);
+  // const findPriceById = (priceId) => prices.find((p) => p.id === priceId);
 
   const handleUpdatePurchaseType = (event) => {
     const { value } = event.target;
@@ -115,11 +146,11 @@ export const ProductCard = ({ product }) => {
     setPurchaseType(value);
 
     if (value === oneTimePurchase) {
-      setPrice(oneTimePayment);
+      setPrice(basePrice);
     }
 
     if (value === recurringPurchase) {
-      setPrice(recurringPayments[0]);
+      setPrice(subscriptionPrice);
     }
   };
 
@@ -129,12 +160,11 @@ export const ProductCard = ({ product }) => {
 
   const handleUpdateRecurring = (event) => {
     setPurchaseType(recurringPurchase);
-    setPrice(findPriceById(event.target.value));
+    setPrice(subscriptionPrice);
   };
 
   const handleAddToCart = () => {
-    addToCart({ ...product, price, quantity });
-
+    addToCart({ ...shopifyProduct, price, quantity });
     if (!isCartOpen) {
       openCart();
       setTimeout(() => toggleCart(), showCartTimeout);
@@ -145,7 +175,7 @@ export const ProductCard = ({ product }) => {
     <Card sx={{ height: '100%' }}>
       <Flex sx={{ height: '100%', flexDirection: 'column' }}>
         <Box>
-          <ProductImage images={images} />
+          <ProductImage images={imageEdgesContainer.edges} />
         </Box>
         <Box>
           <Heading>{name}</Heading>
@@ -154,16 +184,21 @@ export const ProductCard = ({ product }) => {
           <Paragraph>{description}</Paragraph>
         </Box>
         <Box>
-          <ProductPrice price={price} />
+          <ProductPrice purchaseType={purchaseType} rechargeProduct={rechargeProduct} price={price} />
 
-          {oneTimePayment && recurringPayments.length ? (
-            <ProductPaymentToggle purchaseType={purchaseType} onChange={handleUpdatePurchaseType} />
+          {rechargeProduct &&
+          rechargeProduct.subscription_defaults.storefront_purchase_options === 'subscription_and_onetime' ? (
+            <ProductPaymentToggle
+              recurringText={recurringText}
+              purchaseType={purchaseType}
+              onChange={handleUpdatePurchaseType}
+            />
           ) : null}
 
-          {recurringPayments.length ? (
+          {rechargeProduct ? (
             <ProductRecurringSelect
               currentPrice={price}
-              recurringPayments={recurringPayments}
+              rechargeProduct={rechargeProduct}
               onChange={handleUpdateRecurring}
             />
           ) : null}
@@ -181,16 +216,25 @@ export const ProductCard = ({ product }) => {
   );
 };
 
-export const ProductList = ({ products }) => {
+export const ProductList = ({ shopifyProducts, rechargeProducts }) => {
   return (
     <>
-      {products.length ? (
+      {shopifyProducts.length ? (
         <Grid gap={2} columns={3} sx={{ gridAutoRows: '1fr' }}>
-          {products.map((product) => (
-            <Box key={product.id} sx={{ height: '100%' }}>
-              <ProductCard product={product} />
-            </Box>
-          ))}
+          {shopifyProducts.map((product) => {
+            product = product.node;
+            //Find the recharge product that matches the shopify product,
+            //if it exists
+            const rechargeProduct =
+              product.sellingPlanGroupCount > 0
+                ? rechargeProducts.find((currProduct) => product.id.includes(currProduct.shopify_product_id))
+                : null;
+            return (
+              <Box key={product.id} sx={{ height: '100%' }}>
+                <ProductCard shopifyProduct={product} rechargeProduct={rechargeProduct} />
+              </Box>
+            );
+          })}
         </Grid>
       ) : (
         <Paragraph>No products to display!</Paragraph>

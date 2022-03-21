@@ -13,6 +13,20 @@ function PurchasesPage() {
   const { data: subscriptionsData, error: subscriptionsError } = useQuery(GetMySubscriptions, { skip });
   const { data: paymentsData, error: paymentsError } = useQuery(GetMyPayments, { skip });
 
+  if (paymentsData) {
+    paymentsData.payments = paymentsData.payments.orders.edges.map((payment) => ({
+      id: payment.node.id,
+      amount: payment.node.currentTotalPrice.amount,
+      currency: payment.node.currentTotalPrice.currencyCode,
+      created: payment.node.processedAt,
+      invoice: {
+        id: payment.node.id + Math.floor(Math.random() * 1000),
+        paid: payment.node.financialStatus,
+        invoicePdf: payment.node.customerUrl
+      }
+    }));
+  }
+
   return (
     <Page>
       <Heading as="h1">Purchases</Heading>
@@ -26,7 +40,7 @@ function PurchasesPage() {
 
         {!subscriptionsData && <Spinner />}
 
-        {subscriptionsData && <SubscriptionList subscriptions={subscriptionsData.subscriptions} />}
+        {subscriptionsData && <SubscriptionList subscriptionItems={subscriptionsData.subscriptions.items} />}
 
         {subscriptionsError && (
           <>

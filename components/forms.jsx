@@ -32,8 +32,11 @@ export const CustomerForm = ({ customer }) => {
             ID
           </Label>
           <Input {...register('id')} mb={3} readOnly />
-          <Label htmlFor="name">Name</Label>
-          <Input {...register('name')} mb={3} readOnly />
+          <Label htmlFor="First Name">Name</Label>
+          <Input {...register('firstName')} mb={3} readOnly />
+          <Label htmlFor="Last Name">Name</Label>
+          <Input {...register('lastName')} mb={3} readOnly />
+
           <Label htmlFor="address.country">Country</Label>
 
           {countries?.length ? (

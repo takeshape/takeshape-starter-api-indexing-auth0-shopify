@@ -18,14 +18,10 @@ function _CheckoutPage() {
     const doCheckout = async () => {
       const { data } = await client.mutate({
         mutation: CreateMyCheckoutSession,
-        variables: getCheckoutPayload(items, '/')
+        variables: getCheckoutPayload(items)
       });
 
-      const stripe = await getStripe();
-
-      stripe.redirectToCheckout({
-        sessionId: data.session.id
-      });
+      window.location.assign(data.checkout.webUrl);
     };
     if (isProfileReady) {
       doCheckout();

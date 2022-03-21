@@ -27,7 +27,7 @@ function AccountPage() {
       </Section>
 
       <Section>
-        <Heading variant="smallHeading">Stripe Customer</Heading>
+        <Heading variant="smallHeading">Shopify Customer</Heading>
         <Divider />
 
         {!profileData && <Spinner />}

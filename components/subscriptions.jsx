@@ -6,32 +6,39 @@ import { locale } from 'lib/config';
 import { SubmitButton } from './buttons';
 import { ProductImage } from './products';
 
-export const SubscriptionItemCard = ({ subscription, subscriptionItem }) => {
+export const SubscriptionItemCard = ({ subscriptionItem }) => {
   const [setCancelPayload, { error: cancelError, loading: cancelLoading }] = useMutation(DeleteMySubscription, {
     refetchQueries: [GetMySubscriptions],
-    awaitRefetchQueries: true
+    awaitRefetchQueries: true,
+    variables: {
+      subscriptionId: subscriptionItem.id
+    }
   });
 
-  const { current_period_end: currentPeriodEnd } = subscription;
-  const nextBillDate = new Date(currentPeriodEnd * 1000);
+  const { next_charge_scheduled_at: currentPeriodEnd } = subscriptionItem;
+  const nextBillDate = new Date(currentPeriodEnd);
 
-  const {
-    price: { product, ...price }
-  } = subscriptionItem;
+  const { product } = subscriptionItem;
 
   const handleCancelSubscription = () => {
     setCancelPayload({
-      variables: { subscriptionId: subscription.id }
+      variables: { subscriptionId: subscriptionItem.id }
     });
   };
 
+  //Map the images to the type of object ProductImage will use,
+  //which is images[0].node.url
+  const imageArray = Object.keys(product.images).map((imgSize) => ({
+    node: { url: product.images[imgSize] }
+  }));
+
   return (
     <Card>
-      <ProductImage images={product.images} />
+      <ProductImage images={imageArray} />
       <Heading>{product.name}</Heading>
       <Paragraph>
         <Text>
-          {formatPrice(price.currency, price.unitAmount)} / {price.recurring?.interval || ''}
+          {formatPrice(price.currency ?? 'USD', price.unitAmount)} / {subscriptionItem.orderIntervalUnit || ''}
         </Text>
       </Paragraph>
       <Paragraph>
@@ -41,7 +48,7 @@ export const SubscriptionItemCard = ({ subscription, subscriptionItem }) => {
 
       {cancelError && (
         <>
-          <Alert>Error canceling Stripe subscription</Alert>
+          <Alert>Error canceling Recharge subscription</Alert>
           <pre style={{ color: 'red' }}>{JSON.stringify(cancelError, null, 2)}</pre>
         </>
       )}
@@ -51,16 +58,14 @@ export const SubscriptionItemCard = ({ subscription, subscriptionItem }) => {
   );
 };
 
-export const SubscriptionList = ({ subscriptions }) => {
+export const SubscriptionList = ({ subscriptionItems }) => {
   return (
     <>
-      {subscriptions && subscriptions.length ? (
+      {subscriptionItems && subscriptionItems?.length ? (
         <Grid gap={2} columns={3}>
-          {subscriptions.map((subscription) => (
-            <Box key={subscription.id}>
-              {subscription.items?.data?.[0] && (
-                <SubscriptionItemCard subscription={subscription} subscriptionItem={subscription.items.data[0]} />
-              )}
+          {subscriptionItems.map((subscriptionItem) => (
+            <Box key={subscriptionItem.id}>
+              <SubscriptionItemCard subscriptionItem={subscriptionItem} />
             </Box>
           ))}
         </Grid>

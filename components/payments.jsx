@@ -18,7 +18,7 @@ export const PaymentItemCard = ({ payment: { created, invoice, currency, amount 
               <FiArrowDownCircle />
             </IconButton>
           ) : null}
-          {invoice?.paid ? <FiCheckCircle color="green" /> : null}
+          {invoice?.paid === 'PAID' ? <FiCheckCircle color="green" /> : null}
         </Box>
       </Grid>
       Total: {formatPrice(currency, amount)}

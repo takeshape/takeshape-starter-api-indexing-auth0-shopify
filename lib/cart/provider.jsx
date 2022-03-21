@@ -6,7 +6,7 @@ import { setCartIsReady, setCheckoutResult, clearCart } from './actions';
 import useLocalStorage from './use-local-storage';
 
 const localStorageKey = 'cartItems';
-const stripeCheckoutActionSuccess = 'success';
+const shopifyCheckoutActionSuccess = 'success';
 
 export const CartProvider = ({ children }) => {
   const [persistedCartItems, setPersistedCartItems] = useLocalStorage(localStorageKey, []);
@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
   const {
     replace,
     pathname,
-    query: { stripe_checkout_action: action, ...query }
+    query: { shopify_checkout_action: action, ...query }
   } = useRouter();
 
   const persistedCartState = {
@@ -27,7 +27,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     setPersistedCartItems(state.items);
     setCartIsReady(dispatch);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(state.items)]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const CartProvider = ({ children }) => {
       replace(pathname, query, { shallow: true });
     }
 
-    if (action === stripeCheckoutActionSuccess) {
+    if (action === shopifyCheckoutActionSuccess) {
       clearCart(dispatch);
     }
   }, [action, pathname, query, replace]);
