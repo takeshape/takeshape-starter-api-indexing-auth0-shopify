@@ -13,9 +13,9 @@ const dependencies = [
     description: 'Auth0 bindings for React.'
   },
   {
-    title: 'Stripe.js',
-    link: 'https://github.com/stripe/stripe-js',
-    description: 'Stripe’s Javscript library.'
+    title: 'Recharge',
+    link: 'https://rechargepayments.com/ecommerce-platform/shopify/?utm_term=recharge%20shopify&utm_campaign=Google-Recharge-Brand-Shopify-LF&utm_source=google&utm_medium=cpc&hsa_acc=6660040212&hsa_cam=15498208992&hsa_grp=137619430264&hsa_ad=575196747732&hsa_src=g&hsa_tgt=kwd-316551671915&hsa_kw=recharge%20shopify&hsa_mt=e&hsa_net=adwords&hsa_ver=3',
+    description: 'Recharge subscription app for shopify.'
   },
   {
     title: 'graphql-request',
@@ -48,7 +48,8 @@ function AboutPage() {
       <Section>
         <Paragraph>
           This project demonstrates using <Link to="https://auth0.com">Auth0</Link> to manage a user‘s account and make
-          purchases through <Link to="https://stripe.com">Stripe</Link>.
+          purchases through <Link to="https://www.shopify.com/">Shopify</Link> and{' '}
+          <Link to="https://rechargepayments.com/">Recharge</Link>.
         </Paragraph>
 
         <Paragraph>

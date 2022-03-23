@@ -5,14 +5,16 @@ import { useCart } from 'lib/cart';
 import { useApolloClient } from '@apollo/client';
 import { getCheckoutPayload } from 'lib/utils/checkout';
 import { CreateMyCheckoutSession } from 'lib/queries';
-import getStripe from 'lib/utils/stripe';
 import { useProfile } from 'lib/takeshape';
 
 // After a successful login, redirect here to automatically checkout with the cart
 function _CheckoutPage() {
   const { isProfileReady } = useProfile();
   const client = useApolloClient();
-  const { items } = useCart();
+  const {
+    items,
+    actions: { clearCart }
+  } = useCart();
 
   useEffect(() => {
     const doCheckout = async () => {
@@ -21,12 +23,13 @@ function _CheckoutPage() {
         variables: getCheckoutPayload(items)
       });
 
-      window.location.assign(data.checkout.webUrl);
+      clearCart();
+      window.location.assign(data.createMyCheckoutSession.checkout.webUrl);
     };
     if (isProfileReady) {
       doCheckout();
     }
-  }, [client, items, isProfileReady]);
+  }, [client, clearCart, items, isProfileReady]);
 
   return (
     <Container variant="layout.loading">

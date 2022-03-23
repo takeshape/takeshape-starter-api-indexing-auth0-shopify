@@ -13,8 +13,9 @@ function PurchasesPage() {
   const { data: subscriptionsData, error: subscriptionsError } = useQuery(GetMySubscriptions, { skip });
   const { data: paymentsData, error: paymentsError } = useQuery(GetMyPayments, { skip });
 
+  let paymentList = [];
   if (paymentsData) {
-    paymentsData.payments = paymentsData.payments.orders.edges.map((payment) => ({
+    paymentList = paymentsData.payments.orders.edges.map((payment) => ({
       id: payment.node.id,
       amount: payment.node.currentTotalPrice.amount,
       currency: payment.node.currentTotalPrice.currencyCode,
@@ -58,7 +59,7 @@ function PurchasesPage() {
 
         {!paymentsData && <Spinner />}
 
-        {paymentsData && <PaymentList payments={paymentsData.payments} />}
+        {paymentList && <PaymentList payments={paymentList} />}
 
         {paymentsError && (
           <>

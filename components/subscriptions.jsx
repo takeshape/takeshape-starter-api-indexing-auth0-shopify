@@ -28,9 +28,14 @@ export const SubscriptionItemCard = ({ subscriptionItem }) => {
 
   //Map the images to the type of object ProductImage will use,
   //which is images[0].node.url
-  const imageArray = Object.keys(product.images).map((imgSize) => ({
-    node: { url: product.images[imgSize] }
-  }));
+  const imageArray = Object.keys(product.images).map((imgSize) => {
+    return {
+      node: { url: product.images[imgSize] }
+    };
+  });
+
+  //Remove first element of the array because it never has a url
+  imageArray.shift();
 
   return (
     <Card>
@@ -38,7 +43,7 @@ export const SubscriptionItemCard = ({ subscriptionItem }) => {
       <Heading>{product.name}</Heading>
       <Paragraph>
         <Text>
-          {formatPrice(price.currency ?? 'USD', price.unitAmount)} / {subscriptionItem.orderIntervalUnit || ''}
+          {formatPrice('USD', subscriptionItem.unitAmount)} / {subscriptionItem.orderIntervalUnit || ''}
         </Text>
       </Paragraph>
       <Paragraph>

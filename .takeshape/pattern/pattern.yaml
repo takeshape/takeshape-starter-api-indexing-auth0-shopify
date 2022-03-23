@@ -1,0 +1,11 @@
+name: API Indexing with Auth0 + Shopify Starter
+description: 'This project pattern demonstrates how to use TakeShape with Auth0 and Shopify to provide user accounts for managing and purchasing Shopify subscriptions.'
+icon: dollar-sign
+color: '#95bf46'
+categories:
+  - authentication
+  - subscriptions
+  - ecommerce
+  - services
+  - shopify
+  - indexing

@@ -9,7 +9,7 @@ export const PaymentItemCard = ({ payment: { created, invoice, currency, amount 
       <Grid gap={2} columns={2}>
         <Box>
           <Text variant="smallHeading" sx={{ color: 'lightGray' }}>
-            {format(created * 1000, 'PP')}
+            {format(new Date(created) * 1000, 'PP')}
           </Text>
         </Box>
         <Box sx={{ textAlign: 'right' }}>
@@ -21,7 +21,7 @@ export const PaymentItemCard = ({ payment: { created, invoice, currency, amount 
           {invoice?.paid === 'PAID' ? <FiCheckCircle color="green" /> : null}
         </Box>
       </Grid>
-      Total: {formatPrice(currency, amount)}
+      Total: {amount}
     </Card>
   );
 };

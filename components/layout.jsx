@@ -72,7 +72,7 @@ export const Page = ({ children }) => {
   return (
     <Flex variant="layout.page">
       <Head>
-        <title>TakeShape Starter for Auth0 &amp; Stripe</title>
+        <title>TakeShape Starter for Auth0 &amp; Shopify</title>
       </Head>
 
       <Header />

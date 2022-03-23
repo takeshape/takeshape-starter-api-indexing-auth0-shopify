@@ -42,7 +42,7 @@ export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity })
 };
 
 export const ProductImage = (images) => {
-  return images.images[0].node.url ? <AspectImage src={images.images[0].node.url} ratio={1} /> : null;
+  return images.images[0]?.node.url ? <AspectImage src={images.images[0].node.url} ratio={1} /> : null;
 };
 
 export const ProductPaymentToggle = ({ purchaseType, onChange }) => {
@@ -108,20 +108,9 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
       : null
   );
 
-  const { name, priceRangeV2, description, images: imageEdgesContainer } = shopifyProduct;
+  const { name, description, images: imageEdgesContainer } = shopifyProduct;
 
-  const unitAmount = priceRangeV2.maxVariantPrice.amount;
-
-  //This code assumes a product will have a one time payment price and a
-  //list of subscription prices (recurring prices).
-  //Here we get the onetimepayment price out of the list of prices
-  //Then order the subscription prices in ascending order.
-  // const oneTimePayment = prices?.find((p) => !p.recurring);
-  // const recurringPayments = orderBy(
-  //   prices?.filter((p) => p.recurring),
-  //   [(v) => intervalOrderMap.indexOf(v.recurring.interval), 'recurring.intervalCount'],
-  //   ['asc', 'asc']
-  // );
+  const shopifyPrice = shopifyProduct.variants.edges[0].node.price;
 
   const [purchaseType, setPurchaseType] = useState(
     rechargeProduct && rechargeProduct.subscription_defaults.storefront_purchase_options == 'subscription_and_onetime'
@@ -129,7 +118,7 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
       : oneTimePurchase
   );
   const [quantity, setQuantity] = useState(1);
-  const basePrice = Number(priceRangeV2.maxVariantPrice.amount);
+  const basePrice = Number(shopifyPrice);
   const discount =
     rechargeProduct && rechargeProduct.discount_amount ? (rechargeProduct.discount_amount / 100) * basePrice : 0;
   const subscriptionPrice = basePrice - discount;
@@ -137,8 +126,6 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
   if (!basePrice) {
     return null;
   }
-
-  // const findPriceById = (priceId) => prices.find((p) => p.id === priceId);
 
   const handleUpdatePurchaseType = (event) => {
     const { value } = event.target;
@@ -222,12 +209,13 @@ export const ProductList = ({ shopifyProducts, rechargeProducts }) => {
       {shopifyProducts.length ? (
         <Grid gap={2} columns={3} sx={{ gridAutoRows: '1fr' }}>
           {shopifyProducts.map((product) => {
-            product = product.node;
             //Find the recharge product that matches the shopify product,
             //if it exists
             const rechargeProduct =
               product.sellingPlanGroupCount > 0
-                ? rechargeProducts.find((currProduct) => product.id.includes(currProduct.shopify_product_id))
+                ? rechargeProducts.find((currRechargeProduct) =>
+                    product.id.includes(currRechargeProduct.shopify_product_id)
+                  )
                 : null;
             return (
               <Box key={product.id} sx={{ height: '100%' }}>

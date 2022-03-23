@@ -7,10 +7,10 @@ import { formatPrice } from 'lib/utils/text';
 import { getCheckoutPayload } from 'lib/utils/checkout';
 import { CreateMyCheckoutSession } from 'lib/queries';
 import { useCart } from 'lib/cart';
-import getStripe from 'lib/utils/stripe';
 import { ProductPrice, ProductQuantitySelect } from './products';
 import { isTypeSystemExtensionNode } from 'graphql';
-import { client } from 'lib/utils/shopify';
+import { shopifyClient } from 'lib/utils/shopify';
+import { useApolloClient } from '@apollo/client';
 
 export const CartIcon = () => {
   const {
@@ -18,6 +18,7 @@ export const CartIcon = () => {
     isCartReady,
     actions: { toggleCart }
   } = useCart();
+  const client = useApolloClient();
 
   const cartQuantity = items.reduce((q, i) => q + i.quantity, 0);
 
@@ -87,10 +88,12 @@ export const CartSidebar = () => {
     actions: { removeFromCart, updateCartItem, toggleCart }
   } = useCart();
 
+  const client = useApolloClient();
+
   const { user, loginWithRedirect } = useAuth0();
   const [setCheckoutPayload, { data: checkoutData }] = useMutation(CreateMyCheckoutSession);
 
-  const cartCurrency = items?.[0]?.priceRangeV2.maxVariantPrice.currencyCode ?? 'USD';
+  const cartCurrency = 'USD';
 
   const cartTotal = items.map((item) => item.price * item.quantity).reduce((prev, current) => prev + current, 0);
 
@@ -108,7 +111,14 @@ export const CartSidebar = () => {
       return;
     }
 
-    setCheckoutPayload({ variables: getCheckoutPayload(items) });
+    client
+      .mutate({
+        mutation: CreateMyCheckoutSession,
+        variables: getCheckoutPayload(items)
+      })
+      .then(({ data }) => {
+        window.location.assign(data.createMyCheckoutSession.checkout.webUrl);
+      });
   };
 
   useEffect(() => {

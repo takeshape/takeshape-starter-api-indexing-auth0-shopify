@@ -1,0 +1,288 @@
+[
+    {
+        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
+        "created": 1646763372861,
+        "updated": 1646763372861,
+        "name": "anonymous",        
+        "permissions": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getStripeProducts"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Stripe*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
+        "conditions": {
+            "ForAllValues:StringEquals": {
+                "claims:provider": "auth0"
+            }
+        },
+        "updated": 1646763372849,
+        "permissions": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Resource": [
+                        "ts:workflow-step:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "workflow-step:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:workflow:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "workflow:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getMy*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.upsertMyProfile"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.upsertMyCustomer"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.createMyCheckoutSession"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.deleteMySubscription"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:TSRelationship.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Asset.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Profile.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Stripe*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                }
+            ]
+        },
+        "created": 1646763372849,
+        "name": "authenticated"
+    },
+    {
+        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
+        "conditions": {
+            "ForAllValues:StringEquals": {
+                "claims:provider": "auth0"
+            }
+        },
+        "updated": 1647964757769,
+        "permissions": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Resource": [
+                        "ts:project:6193370d-3772-4b7c-8503-1a477b62e3eb"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "project:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:content-type:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "content-type:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:site:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "site:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:webhook:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "webhook:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:workflow:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "workflow:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:workflow-step:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "workflow-step:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:lock:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "lock:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:project-member:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "project-member:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:role:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "role:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:api-key:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "api-key:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:project-billing:6193370d-3772-4b7c-8503-1a477b62e3eb"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "project-billing:*"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                }
+            ]
+        },
+        "created": 1647964757769,
+        "name": "execute"
+    }
+]

@@ -42,17 +42,14 @@ export async function getStaticProps() {
 
   try {
     const { data } = await client.query({
-      query: GetShopifyAndRechargeProducts,
-      variables: {
-        first: 20
-      }
+      query: GetShopifyAndRechargeProducts
     });
 
     if (data.errors) {
       error = data.errors;
     } else {
-      products.shopifyProducts = data.products.shopify.edges;
-      products.rechargeProducts = data.products.recharge.products;
+      products.shopifyProducts = data.products.shopify.items;
+      products.rechargeProducts = data.products.recharge.items;
     }
   } catch (err) {
     console.error(err);
