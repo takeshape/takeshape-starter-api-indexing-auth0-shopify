@@ -70,35 +70,33 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
    - Go to Apps → Develop Apps as shown in the image below
 
-   ![The admin apps page in shopify](./readme_images/apps-page.png)
+   ![The admin apps page in shopify](./readme_images/apps-page.jpg)
 
    - Select the "Create an App" button, then name it whatever you'd like in the popup modal that you'll see next. "NextJS Example" would be fine.
 
-   - You'll see your app in a list on this page now. Select it to continue.
+   - You'll be taken to your app's settings page. Under the Overview tab, you'll see "Select your app scopes to get started." Select "Configure Storefront API scopes".
 
-   - On the app page, under Overview, select "Manage Credentials" under "Summary"
+![App settings page](./readme_images/configure-storefront.jpg)
 
-   ![The app page](./readme_images/apps-page.png)
+   - Enable the `unauthenticated_write_checkouts` and `unauthenticated_read_checkouts`. Then hit Save in the top right.
+
+   - Now select the API credentials tab. You'll see an "Install app" button. Select it and select "Install" on the popup-modal that comes up next.
+
+   - The page will now have a "Storefront API access token". Copy it and save it. You'll need it to configure Shopify Storefront in your TakeShape project.
+
+   ![The access token page](./readme_images/access-token.png)
+
+4. Setup test payments in your store.
+##### Setting up test payments
+   - Select "Settings" at the bottom-left of your store's admin page. On the new page that appears, select "Payments" in the navigation on the left.
+
+   - In the Shopify Payments section, you'll see Shopify Payments. Complete the steps to activate it, then select "Manage".
    
-   - Create a Storefront API access token and save it. You'll need it to configure the Storefront API in your TakeShape project for this pattern.
+   ![The Payments page](./readme_images/manage-payments.png)
 
-   ![The app page](./readme_images/access-token.png)
+   - Scroll to the bottom of the next page and check the "Enable test mode" checkbox.
 
-   - Select the "Configuration" tab above, then select "Edit" in the "Storefront API integration" section.
-      - Under "Storefront API access scopes", Check all available permissions under Checkout, Customers, Products and Selling Plans.
-
-4. Set your store up to take test payments.
-   
-   - [Active Shopify Payments](https://help.shopify.com/en/manual/payments/shopify-payments/setting-up-shopify-payments).
-      - Select "Settings" at the bottom-left of your store's admin page. On the new page that appears, select "Payments" in the navigation on the left.
-
-      - In the Shopify Payments section, you'll see Shopify Payments. Complete the steps to activate it, then select "Manage".
-      
-      ![The Payments page](./readme_images/manage-payments.png)
-
-      - Scroll to the bottom of the next page and check the "Enable test mode" checkbox.
-
-      - Select "Save" at the bottom-right of the page.
+   - Select "Save" at the bottom-right of the page.
 
 5. Configure your store's checkout. All of the following instructions require you to navigate to the settings of your store's admin page. In the navbar on the left, select Checkout.
 
@@ -120,7 +118,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
    - Set up your Shopify Storefront service.
       - Select **Shopify Storefront** from the list of services in the `API` tab, in the `Patterns & Services` pane.
-      - Under **Authentication**, Enter X-Shopify-Storefront-Access-Token into  the Header field, and your Storefront access token into the Token field.
+      - Under **Authentication**, Enter `X-Shopify-Storefront-Access-Token` into  the Header field, and your Storefront access token into the Token field.
       - **Save** the service.
       
    - Set up your Shopify Admin service.
@@ -129,6 +127,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
       - **Save** the service.
 
 ### Recharge
+
+
+> NOTE: To add Recharge to your store, you must have payments properly configured in your settings. We encourage you to use Shopify Payments in test mode. Follow [the instructions from earlier in this readme](#setting-up-test-payments) to do so now.
 
 Now add Recharge your Shopify store, then configure the Recharge service in your TakeShape project.
 
@@ -144,7 +145,7 @@ Now add Recharge your Shopify store, then configure the Recharge service in your
 
    ![The installed apps list in your shopify admin page](./readme_images/recharge-installed.png)
 
-   - If Recharge sends you to an error page with the message "Sorry, Shopify says your store is ineligible for subscriptions", that means you haven't configured shopify payments for your store yet. Do so by following [the instructions above](#shopify). You can also follow [Recharge's instructions here](https://support.rechargepayments.com/hc/en-us/articles/360056542474-Shopify-Checkout-Integration-FAQ#h_01EV7H6EQQBTFM78E63RA03R13).
+   - If Recharge sends you to an error page with the message "Sorry, Shopify says your store is ineligible for subscriptions", that means you haven't configured shopify payments for your store yet. Do so by following [the instructions above](#setting-up-test-payments). You can also follow [Recharge's instructions here](https://support.rechargepayments.com/hc/en-us/articles/360056542474-Shopify-Checkout-Integration-FAQ#h_01EV7H6EQQBTFM78E63RA03R13).
 
    - If you were redirected to Recharge, navigate to "Products" by selecting "Products" in the navbar at the top, then selecting "Products" in the dropdown.
 
@@ -179,7 +180,7 @@ Now add Recharge your Shopify store, then configure the Recharge service in your
 
    - Set up your Recharge service.
       - Select **Recharge** from the list of services in the `API` tab, in the `Patterns & Services` pane.
-      - Under **Authentication**, Enter X-Recharge-Access-Token into the Header field, and your Recharge access token into the Token field.
+      - Under **Authentication**, Enter `X-Recharge-Access-Token` into the Header field, and your Recharge access token into the Token field.
       - **Save** the service.
 ### Running the Starter
 

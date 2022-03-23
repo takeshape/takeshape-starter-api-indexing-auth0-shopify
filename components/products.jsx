@@ -110,7 +110,10 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
 
   const { name, description, images: imageEdgesContainer } = shopifyProduct;
 
-  const shopifyPrice = shopifyProduct.variants.edges[0].node.price;
+  //This takes the max variant price if no price is found. Not perfect
+  //but okay for the purposes of a demo for now.
+  const shopifyPrice =
+    shopifyProduct.variants.edges[0].node.price ?? shopifyProduct.priceRangeV2.maxVariantPrice.amount;
 
   const [purchaseType, setPurchaseType] = useState(
     rechargeProduct && rechargeProduct.subscription_defaults.storefront_purchase_options == 'subscription_and_onetime'
@@ -209,6 +212,10 @@ export const ProductList = ({ shopifyProducts, rechargeProducts }) => {
       {shopifyProducts.length ? (
         <Grid gap={2} columns={3} sx={{ gridAutoRows: '1fr' }}>
           {shopifyProducts.map((product) => {
+            if (product.node) {
+              //If we had to fetch without the API Index, this is necessary
+              product = product.node;
+            }
             //Find the recharge product that matches the shopify product,
             //if it exists
             const rechargeProduct =

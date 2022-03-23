@@ -2,7 +2,7 @@ import { Heading, Divider, Alert, Spinner, Container } from '@theme-ui/component
 import { Page } from 'components/layout';
 import { ProductList } from 'components/products';
 import { takeshapeApiUrl, takeshapeApiKey } from 'lib/config';
-import { GetShopifyAndRechargeProducts } from 'lib/queries';
+import { GetShopifyAndRechargeProducts, GetIndexedProductList } from 'lib/queries';
 import { createApolloClient } from 'lib/apollo';
 
 function HomePage({ products, error }) {
@@ -41,19 +41,39 @@ export async function getStaticProps() {
   let error = null;
 
   try {
-    const { data } = await client.query({
-      query: GetShopifyAndRechargeProducts
+    let { data } = await client.query({
+      query: GetIndexedProductList,
+      errorPolicy: 'ignore'
     });
 
-    if (data.errors) {
+    if (!data || data?.errors) {
       error = data.errors;
+      throw error;
     } else {
       products.shopifyProducts = data.products.shopify.items;
       products.rechargeProducts = data.products.recharge.items;
     }
   } catch (err) {
-    console.error(err);
-    error = Array.isArray(err) ? err.map((e) => e.message).join() : err.message;
+    let freshData;
+    try {
+      const { data: queryData } = await client.query({
+        query: GetShopifyAndRechargeProducts,
+        errorPolicy: 'ignore'
+      });
+
+      freshData = queryData;
+
+      if (freshData?.errors) {
+        error = freshData.errors;
+        throw error;
+      } else {
+        products.shopifyProducts = freshData.products.shopify.items;
+        products.rechargeProducts = freshData.products.recharge.items;
+      }
+    } catch (error) {
+      console.error(err);
+      error = Array.isArray(err) ? err.map((e) => e.message).join() : err.message;
+    }
   } finally {
     return { props: { products, error } };
   }

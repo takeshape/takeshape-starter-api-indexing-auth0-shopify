@@ -15,14 +15,14 @@ function PurchasesPage() {
 
   let paymentList = [];
   if (paymentsData) {
-    paymentList = paymentsData.payments.orders.edges.map((payment) => ({
+    paymentList = paymentsData.payments.edges.map((payment) => ({
       id: payment.node.id,
-      amount: payment.node.currentTotalPrice.amount,
-      currency: payment.node.currentTotalPrice.currencyCode,
+      amount: payment.node.currentTotalPriceSet.shopMoney.amount,
+      currency: payment.node.currentTotalPriceSet.shopMoney.currencyCode,
       created: payment.node.processedAt,
       invoice: {
         id: payment.node.id + Math.floor(Math.random() * 1000),
-        paid: payment.node.financialStatus,
+        paid: payment.node.fullyPaid,
         invoicePdf: payment.node.customerUrl
       }
     }));

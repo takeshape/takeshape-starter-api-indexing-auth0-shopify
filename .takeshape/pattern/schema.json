@@ -1,7 +1,7 @@
 {
     "apiVersion": "2",
-    "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
-    "dataKey": "AQIDAHi9nATJb1LYgj5u7ShOGp43y2H6TuckRKGDlwTU4b6ryQEE3V1e7v05clHxBXGfi4yRAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMBnLi+E+d1BYQANwjAgEQgDv1tdzJAAj2USYQWNugDHnn9d56rKJSsacX0h+LE+yCaCb3pieTYOVCHC/4qTcYBpQDwBQtBKSYRBCyog==",
+    "projectId": "",
+    "dataKey": "",
     "version": 248,
     "created": "2022-03-08T18:16:09.325Z",
     "updated": "2022-03-23T13:34:18.268Z",
@@ -85,7 +85,6 @@
         "namespace": "Recharge",
         "serviceType": "rest",
         "authenticationType": "bearer",
-        "authentication": "4pu4eIQ1cALNv/nyxRwQ5Uv9eyrO+Bi0mGd2KDL/BkXZtK6W6mFWC7BMgCQP8CncHgZ5nm9b73zUpJH2Oriy+0RO3wAZzUb6s1PaRbzldsz0S/mwFimnO5EWy/82iYa6PDh2deqBsSyYABNtlTzU0Jqdt3sVfXbVxT3/bpHFvdM0wOqRJheges0RJfaMXggPchj7axxg",
         "options": {"endpoint": "https://api.rechargeapps.com"}
       },
       "shopify-storefront": {
@@ -94,25 +93,15 @@
         "title": "Shopify Storefront",
         "namespace": "ShopifyStorefront",
         "serviceType": "graphql",
-        "authenticationType": "bearer",
-        "options": {
-          "endpoint": "https://takeshapetestsite.myshopify.com/api/2022-01/graphql.json"
-        },
-        "authentication": "4pn++pxo77OcrDpfTPZFbvqdo/V+ToNaJLO4lai04Mi6gsAs6bIW3FYIowsAQBxMTdEmQEG/kMV5gIsHGybOiYL8vd6I/YKAds6FUkctaeBEXqB2japo3osPXRcGVIXuf79D+XpOPT7gIM6qwljFK8ZjevQt2z5r4Q=="
+        "authenticationType": "bearer"
       },
-      "my-shopify-shop": {
+      "shopify-admin": {
         "title": "Shopify Admin",
         "namespace": "Shopify",
         "provider": "shopify",
         "serviceType": "graphql",
         "authenticationType": "oauth2Bearer",
-        "authentication": "OtNRyC4cnkbrmLmmyYkzrmuwQYfHxRfh5gDdOim7/ifsDbLF7+GWBtMLIDIYdgfE+5ZMU9hRoAJMcu/xrYoGY6Zz50ZTPtHepqwg/ZLTVd500zomNDScxr5zBOpFHxS46urv5GkrOFIusGKSPOpSXinMCw1fSm/Zmi4ILi6ShHYCxCyRF58BrKGtCeL1w8/fKktjIvz4GC//haZ8lrMPgNJb4IpEj0BynNsR4/Y68FdfQ3AbB+xuHpKp6k3G8jKsTFe9vMQ=",
-        "options": {
-          "shop": "takeshapetestsite",
-          "endpoint": "https://takeshapetestsite.myshopify.com/admin/api/2022-01/graphql.json",
-          "shopifyPlus": false
-        },
-        "id": "my-shopify-shop"
+        "id": "shopify-admin"
       }
     },
     "queries": {
@@ -262,52 +251,26 @@
         "description": "Get my subscriptions"
       },
       "getMyPayments": {
-        "shape": "ShopifyStorefront_Customer",
+        "shape": "Shopify_OrderConnection",
         "resolver": {
-          "results": {
+          "id": "getCustomerOrders",
+          "name": "graphql:query",
+          "service": "shopify-admin",
+          "fieldName": "orders",
+          "args": {
             "ops": [
               {
-                "path": "$",
-                "mapping": [["get", {"path": "$resolvers.getCustomerOrders"}]]
-              }
+                "path": "query",
+                "mapping": [
+                  ["get", {"path": "$claims.email"}],
+                  ["prepend", {"text": "email:"}]
+                ]
+              },
+              {"path": "first", "mapping": "$args.first"}
             ]
-          },
-          "compose": [
-            {
-              "id": "createShopifyCustomerAccessToken",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerAccessTokenCreate",
-              "options": {
-                "selectionSet": "{customerAccessToken{accessToken } customerUserErrors{field}}"
-              },
-              "args": {
-                "ops": [
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.password", "mapping": "$claims.azp"}
-                ]
-              }
-            },
-            {
-              "if": "!isEmpty($resolvers.createShopifyCustomerAccessToken.customerAccessToken.accessToken)",
-              "id": "getCustomerOrders",
-              "name": "graphql:query",
-              "service": "shopify-storefront",
-              "fieldName": "customer",
-              "options": {
-                "selectionSet": "{id orders(first:3){edges{node{currentTotalPrice{amount currencyCode} processedAt id customerUrl financialStatus}}}}"
-              },
-              "args": {
-                "ops": [
-                  {
-                    "path": "customerAccessToken",
-                    "mapping": "$resolvers.createShopifyCustomerAccessToken.customerAccessToken.accessToken"
-                  }
-                ]
-              }
-            }
-          ]
-        }
+          }
+        },
+        "args": {"type": "object", "properties": {"first": {"type": "number"}}}
       },
       "getShopifyAndRechargeProducts": {
         "shape": "ShopifyAndRechargeProducts",
@@ -328,7 +291,7 @@
             {
               "id": "shopify",
               "name": "graphql:query",
-              "service": "my-shopify-shop",
+              "service": "shopify-admin",
               "fieldName": "products",
               "options": {
                 "selectionSet": "{edges{node{id title description variants(first:3){edges{node{id inventoryQuantity}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:1){ edges{ node{ id } } } } }}"
@@ -369,7 +332,7 @@
       "Shopify_product": {
         "resolver": {
           "name": "graphql:query",
-          "service": "my-shopify-shop",
+          "service": "shopify-admin",
           "fieldName": "product"
         },
         "args": {
@@ -388,7 +351,7 @@
       "Shopify_products": {
         "resolver": {
           "name": "graphql:query",
-          "service": "my-shopify-shop",
+          "service": "shopify-admin",
           "fieldName": "products"
         },
         "args": {
@@ -416,7 +379,7 @@
               "default": false
             },
             "sortKey": {
-              "@ref": "my-shopify-shop:ProductSortKeys",
+              "@ref": "shopify-admin:ProductSortKeys",
               "description": "Sort the underlying list by the given key.",
               "default": "ID"
             },
@@ -432,6 +395,116 @@
           }
         },
         "shape": "Shopify_ProductConnection"
+      },
+      "Shopify_orders": {
+        "resolver": {
+          "name": "graphql:query",
+          "service": "shopify-admin",
+          "fieldName": "orders"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "first": {
+              "type": "integer",
+              "description": "Returns up to the first `n` elements from the list."
+            },
+            "after": {
+              "type": "string",
+              "description": "Returns the elements that come after the specified cursor."
+            },
+            "last": {
+              "type": "integer",
+              "description": "Returns up to the last `n` elements from the list."
+            },
+            "before": {
+              "type": "string",
+              "description": "Returns the elements that come before the specified cursor."
+            },
+            "reverse": {
+              "type": "boolean",
+              "description": "Reverse the order of the underlying list.",
+              "default": false
+            },
+            "sortKey": {
+              "@ref": "shopify-admin:OrderSortKeys",
+              "description": "Sort the underlying list by the given key.",
+              "default": "PROCESSED_AT"
+            },
+            "query": {
+              "type": "string",
+              "description": "Supported filter parameters:\n - `cart_token`\n - `channel`\n - `channel_id`\n - `chargeback_status`\n - `checkout_token`\n - `created_at`\n - `credit_card_last4`\n - `customer_id`\n - `delivery_method`\n - `discount_code`\n - `earliest_fulfill_by`\n - `email`\n - `financial_status`\n - `fraud_protection_level`\n - `fulfillment_location_id`\n - `fulfillment_status`\n - `gateway`\n - `location_id`\n - `name`\n - `payment_provider_id`\n - `processed_at`\n - `reference_location_id`\n - `return_status`\n - `risk_level`\n - `sales_channel`\n - `source_identifier`\n - `source_name`\n - `status`\n - `tag`\n - `tag_not`\n - `test`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
+            },
+            "savedSearchId": {
+              "type": "string",
+              "@tag": "id",
+              "description": "The ID of an existing saved search.\nThe search’s query string is used as the query argument.\nRefer to [SavedSearch](https://shopify.dev/api/admin-graphql/latest/objects/savedsearch)."
+            }
+          }
+        },
+        "shape": "Shopify_OrderConnection"
+      },
+      "Shopify_customers": {
+        "resolver": {
+          "name": "graphql:query",
+          "service": "shopify-admin",
+          "fieldName": "customers"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "first": {
+              "type": "integer",
+              "description": "Returns up to the first `n` elements from the list."
+            },
+            "after": {
+              "type": "string",
+              "description": "Returns the elements that come after the specified cursor."
+            },
+            "last": {
+              "type": "integer",
+              "description": "Returns up to the last `n` elements from the list."
+            },
+            "before": {
+              "type": "string",
+              "description": "Returns the elements that come before the specified cursor."
+            },
+            "reverse": {
+              "type": "boolean",
+              "description": "Reverse the order of the underlying list.",
+              "default": false
+            },
+            "sortKey": {
+              "@ref": "shopify-admin:CustomerSortKeys",
+              "description": "Sort the underlying list by the given key.",
+              "default": "ID"
+            },
+            "query": {
+              "type": "string",
+              "description": "Supported filter parameters:\n - `accepts_marketing`\n - `country`\n - `customer_date`\n - `email`\n - `last_abandoned_order_date`\n - `order_date`\n - `orders_count`\n - `phone`\n - `state`\n - `tag`\n - `tag_not`\n - `total_spent`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
+            }
+          }
+        },
+        "shape": "Shopify_CustomerConnection"
+      },
+      "Shopify_customer": {
+        "resolver": {
+          "name": "graphql:query",
+          "service": "shopify-admin",
+          "fieldName": "customer"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "@tag": "id",
+              "description": "The ID of the Customer to return."
+            }
+          },
+          "required": ["id"]
+        },
+        "shape": "Shopify_Customer"
       }
     },
     "mutations": {
@@ -452,6 +525,16 @@
               "service": "takeshape:local",
               "shapeName": "Profile",
               "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
+            },
+            {
+              "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+              "id": "createShopifyCustomer",
+              "name": "graphql:mutation",
+              "service": "shopify-admin",
+              "fieldName": "customerCreate",
+              "args": {
+                "ops": [{"path": "input.email", "mapping": "$claims.email"}]
+              }
             },
             {
               "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && isEmpty($resolvers.existingProfile)",
@@ -479,57 +562,6 @@
               }
             },
             {
-              "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
-              "id": "createShopifyCustomer",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerCreate",
-              "options": {
-                "selectionSet": "{customer{id displayName defaultAddress{ address1 address2 city province zip country}}}"
-              },
-              "args": {
-                "ops": [
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.password", "mapping": "$claims.azp"}
-                ]
-              }
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) !isEmpty($resolvers.existingProfile.shopifyCustomerId) && isEmpty($resolvers.createShopifyCustomer)",
-              "id": "createShopifyCustomerAccessToken",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerAccessTokenCreate",
-              "options": {
-                "selectionSet": "{customerAccessToken{accessToken } customerUserErrors{field}}"
-              },
-              "args": {
-                "ops": [
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.password", "mapping": "$claims.azp"}
-                ]
-              }
-            },
-            {
-              "if": "!isEmpty($resolvers.createShopifyCustomerAccessToken) && !isEmpty($claims.sub) && !isEmpty($resolvers.existingProfile.shopifyCustomerId) && isEmpty($resolvers.createShopifyCustomer)",
-              "id": "updateShopifyCustomer",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerUpdate",
-              "options": {
-                "selectionSet": "{customer{id displayName defaultAddress{address1 address2 city province zip country}}}"
-              },
-              "args": {
-                "ops": [
-                  {
-                    "path": "customerAccessToken",
-                    "mapping": "$resolvers.createShopifyCustomerAccessToken.customerAccessToken.accessToken"
-                  },
-                  {"path": "customer.email", "mapping": "$claims.email"}
-                ]
-              }
-            },
-            {
               "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
               "id": "updateProfile",
               "name": "takeshape:update",
@@ -546,10 +578,6 @@
                   {
                     "path": "input.name",
                     "mapping": "$resolvers.createShopifyCustomer.customer.displayName"
-                  },
-                  {
-                    "path": "input.name",
-                    "mapping": "$resolvers.updateShopifyCustomer.customer.displayName"
                   },
                   {"path": "input.bio", "mapping": "$args.bio"},
                   {"path": "input.avatar.id", "mapping": "$args.avatarId"},
@@ -584,10 +612,10 @@
         }
       },
       "upsertMyCustomer": {
-        "shape": "ShopifyStorefront_CustomerCreatePayload",
+        "shape": "Profile",
         "resolver": {
           "results": {
-            "ops": [{"path": "$", "mapping": "$resolvers.updateShopifyCustomer"}]
+            "ops": [{"path": "$", "mapping": "$resolvers.updateProfile"}]
           },
           "compose": [
             {
@@ -597,41 +625,6 @@
               "service": "takeshape:local",
               "shapeName": "Profile",
               "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) !isEmpty($resolvers.existingProfile.shopifyCustomerId) && isEmpty($resolvers.createShopifyCustomer)",
-              "id": "createShopifyCustomerAccessToken",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerAccessTokenCreate",
-              "options": {
-                "selectionSet": "{customerAccessToken{accessToken } customerUserErrors{field}}"
-              },
-              "args": {
-                "ops": [
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.password", "mapping": "$claims.azp"}
-                ]
-              }
-            },
-            {
-              "if": "!isEmpty($resolvers.createShopifyCustomerAccessToken) && !isEmpty($claims.sub) && !isEmpty($resolvers.existingProfile.shopifyCustomerId))",
-              "id": "updateShopifyCustomer",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "customerUpdate",
-              "options": {
-                "selectionSet": "{customer{id displayName defaultAddress{address1 address2 city province zip country}}}"
-              },
-              "args": {
-                "ops": [
-                  {
-                    "path": "customerAccessToken",
-                    "mapping": "$resolvers.createShopifyCustomerAccessToken.customerAccessToken.accessToken"
-                  },
-                  {"path": "customer.email", "mapping": "$claims.email"}
-                ]
-              }
             },
             {
               "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
@@ -646,36 +639,19 @@
                     "mapping": "$resolvers.existingProfile._id"
                   },
                   {"path": "input.email", "mapping": "$claims.email"},
-                  {
-                    "path": "input.name",
-                    "mapping": "$resolvers.updateShopifyCustomer.customer.displayName"
-                  },
+                  {"path": "input.name", "mapping": "$args.name"},
                   {"path": "input.bio", "mapping": "$args.bio"},
-                  {"path": "input.avatar.id", "mapping": "$args.avatarId"},
-                  {
-                    "path": "input.shopifyCustomerId",
-                    "mapping": [
-                      [
-                        "get",
-                        {"path": "$resolvers.existingProfile.shopifyCustomerId"}
-                      ],
-                      [
-                        "get",
-                        {"path": "$resolvers.createShopifyCustomer.customer.id"}
-                      ]
-                    ]
-                  }
+                  {"path": "input.avatar.id", "mapping": "$args.avatarId"}
                 ]
               }
             }
           ]
         },
-        "description": "Upsert my Shopify and Recharge customer.",
+        "description": "Upsert my customer.",
         "args": {
           "type": "object",
           "properties": {
-            "firstName": {"type": "string"},
-            "lastName": {"type": "string"},
+            "name": {"type": "string"},
             "description": {"type": "string"},
             "address": {
               "type": "object",
@@ -692,7 +668,7 @@
         }
       },
       "deleteMySubscription": {
-        "shape": "local:Profile",
+        "shape": "Profile",
         "resolver": {
           "results": {
             "ops": [
@@ -810,6 +786,24 @@
         },
         "description": "Delete Profile",
         "args": "DeleteArgs<Profile>"
+      },
+      "Shopify_customerCreate": {
+        "resolver": {
+          "name": "graphql:mutation",
+          "service": "shopify-admin",
+          "fieldName": "customerCreate"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "@ref": "shopify-admin:CustomerInput",
+              "description": "The input fields to create a customer."
+            }
+          },
+          "required": ["input"]
+        },
+        "shape": "Shopify_CustomerCreatePayload"
       }
     },
     "shapes": {
@@ -901,7 +895,7 @@
         "schema": {
           "type": "object",
           "properties": {
-            "shopify": {"@ref": "my-shopify-shop:ProductConnection"},
+            "shopify": {"@ref": "shopify-admin:ProductConnection"},
             "recharge": {"@ref": "local:Recharge_ProductList"}
           }
         }
@@ -918,7 +912,7 @@
               "properties": {
                 "items": {
                   "type": "array",
-                  "items": {"@ref": "my-shopify-shop:Product"}
+                  "items": {"@ref": "shopify-admin:Product"}
                 }
               }
             },
@@ -1090,10 +1084,10 @@
             "shopifyCustomer": {
               "title": "Shopify Customer",
               "description": "",
-              "@ref": "my-shopify-shop:Customer",
+              "@ref": "shopify-admin:Customer",
               "@resolver": {
                 "name": "graphql:query",
-                "service": "my-shopify-shop",
+                "service": "shopify-admin",
                 "fieldName": "customer",
                 "args": {
                   "ops": [{"path": "id", "mapping": "$source.shopifyCustomerId"}]
