@@ -1,3 +1,7 @@
+## WARNING
+
+This project is for demonstration purposes only. Do not use or base a project on this as it contains **unsafe permissions**.
+
 # TakeShape Starter Auth0 + Stripe
 
 The following is a guide to launch a Next.JS project that uses Auth0 for authentication, Stripe for purchasing
