@@ -1,12 +1,5 @@
 {
     "apiVersion": "2",
-    "projectId": "",
-    "dataKey": "",
-    "version": 248,
-    "created": "2022-03-08T18:16:09.325Z",
-    "updated": "2022-03-23T13:34:18.268Z",
-    "defaultLocale": "en-us",
-    "locales": ["en-us"],
     "workflows": {},
     "indexedShapes": {
       "Recharge_Product": {
@@ -72,11 +65,7 @@
         "provider": "auth0",
         "title": "auth0",
         "serviceType": "authentication",
-        "authenticationType": "none",
-        "options": {
-          "domain": "dev-ehwsbadc.us.auth0.com",
-          "audience": "https://api.takeshape.io/project/6193370d-3772-4b7c-8503-1a477b62e3eb/auth-0"
-        }
+        "authenticationType": "none"
       },
       "recharge": {
         "id": "recharge",
