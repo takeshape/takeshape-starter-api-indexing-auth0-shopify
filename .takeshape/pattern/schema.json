@@ -1,5 +1,12 @@
 {
     "apiVersion": "2",
+    "projectId": "",
+    "dataKey": "AQIDAHi9nATJb1LYgj5u7ShOGp43y2H6TuckRKGDlwTU4b6ryQEE3V1e7v05clHxBXGfi4yRAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMBnLi+E+d1BYQANwjAgEQgDv1tdzJAAj2USYQWNugDHnn9d56rKJSsacX0h+LE+yCaCb3pieTYOVCHC/4qTcYBpQDwBQtBKSYRBCyog==",
+    "version": 248,
+    "created": "2022-03-08T18:16:09.325Z",
+    "updated": "2022-03-23T13:34:18.268Z",
+    "defaultLocale": "en-us",
+    "locales": ["en-us"],
     "workflows": {},
     "indexedShapes": {
       "Recharge_Product": {
