@@ -98,16 +98,13 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
     actions: { addToCart, openCart, toggleCart }
   } = useCart();
 
-  const [recurringText, setRecurringText] = useState(
-    rechargeProduct
-      ? `every ${pluralizeText(
-          rechargeProduct.subscription_defaults.charge_interval_frequency,
-          rechargeProduct.subscription_defaults.order_interval_unit,
-          `${rechargeProduct.subscription_defaults.order_interval_unit}s`
-        )}`
-      : null
-  );
-
+  const recurringText = rechargeProduct
+    ? `every ${pluralizeText(
+        rechargeProduct.subscription_defaults.charge_interval_frequency,
+        rechargeProduct.subscription_defaults.order_interval_unit,
+        `${rechargeProduct.subscription_defaults.order_interval_unit}s`
+      )}`
+    : null;
   const { name, description, images: imageEdgesContainer } = shopifyProduct;
 
   //This takes the max variant price if no price is found. Not perfect
@@ -154,7 +151,7 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
   };
 
   const handleAddToCart = () => {
-    addToCart({ ...shopifyProduct, price, quantity });
+    addToCart({ ...shopifyProduct, price, quantity, purchaseType });
     if (!isCartOpen) {
       openCart();
       setTimeout(() => toggleCart(), showCartTimeout);

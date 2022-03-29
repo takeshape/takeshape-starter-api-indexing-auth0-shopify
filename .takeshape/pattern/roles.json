@@ -2,13 +2,13 @@
     {
         "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
         "conditions": {},
-        "updated": 1648073283341,
+        "updated": 1648473436274,
         "permissions": {
             "Version": "2012-10-17",
             "Statement": [
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.*"
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getIndexedProductList"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -17,7 +17,16 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Recharge_Subscription.*"
+                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getShopifyAndRechargeProducts"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "graphql:execute"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:ShopifyAndRechargeProducts.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -26,7 +35,43 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Profile.*"
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:IndexedShopifyAndRechargeProducts.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Recharge_ProductList.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Recharge_Product.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Shopify_ProductConnection.*"
+                    ],
+                    "Effect": "Allow",
+                    "Action": [
+                        "shape:query"
+                    ]
+                },
+                {
+                    "Resource": [
+                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Shopify_Product.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -197,143 +242,5 @@
         },
         "created": 1646763372849,
         "name": "authenticated"
-    },
-    {
-        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
-        "conditions": {},
-        "updated": 1648073464141,
-        "permissions": {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Resource": [
-                        "ts:project:6193370d-3772-4b7c-8503-1a477b62e3eb"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "project:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:content-type:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "content-type:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:site:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "site:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:webhook:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "webhook:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:workflow:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "workflow:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:workflow-step:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "workflow-step:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:lock:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "lock:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:project-member:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "project-member:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:role:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "role:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:api-key:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "api-key:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:project-billing:6193370d-3772-4b7c-8503-1a477b62e3eb"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "project-billing:*"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "graphql:execute"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "graphql:execute"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "shape:query"
-                    ]
-                }
-            ]
-        },
-        "created": 1647964757769,
-        "name": "execute"
     }
 ]

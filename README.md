@@ -110,7 +110,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
       
       - In the Checkout page of your store's settings, scroll down to the section labeled "Order status page scripts".
 
-      - Enter `<script> window.location = "http://localhost:3000/purchases"; </script>` into the "Scripts" textbox.
+      - Enter `<script> window.location = "http://localhost:3000/?shopify_checkout_action=success"; </script>` into the "Scripts" textbox.
 
       ![The Order status page scripts section](./readme_images/checkout-script.png)
 
@@ -125,6 +125,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
       - Select **Shopify Admin** from the list of services on the `API` tab, in the `Patterns & Services` pane.
       - Under **myshopify.com URL**, Enter your store's myshopify.com domain, which will look like `https://your-store.myshopify.com`
       - **Save** the service.
+      - Skip the dialog that appears next asking you to import data, queries and mutations.
 
 ### Recharge
 
@@ -186,7 +187,7 @@ Now add Recharge your Shopify store, then configure the Recharge service in your
 
 1. Head over to your trusty terminal or tool of choice.
 
-   - Clone this repo with `git clone https://github.com/takeshape/takeshape-starter-api-indexing-auth0-shopify`.
+   - Clone this repo with `git clone https://github.com/takeshape/takeshape-starter-auth0-shopify`.
    - `cd` into the folder that the cloning created.
    - Run `mv .env.local-example .env.local` to rename the environment variables file.
    - Run `npm install`.

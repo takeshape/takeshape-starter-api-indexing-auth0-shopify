@@ -14,7 +14,7 @@ const dependencies = [
   },
   {
     title: 'Recharge',
-    link: 'https://rechargepayments.com/ecommerce-platform/shopify/?utm_term=recharge%20shopify&utm_campaign=Google-Recharge-Brand-Shopify-LF&utm_source=google&utm_medium=cpc&hsa_acc=6660040212&hsa_cam=15498208992&hsa_grp=137619430264&hsa_ad=575196747732&hsa_src=g&hsa_tgt=kwd-316551671915&hsa_kw=recharge%20shopify&hsa_mt=e&hsa_net=adwords&hsa_ver=3',
+    link: 'https://rechargepayments.com/ecommerce-platform/shopify/',
     description: 'Recharge subscription app for shopify.'
   },
   {

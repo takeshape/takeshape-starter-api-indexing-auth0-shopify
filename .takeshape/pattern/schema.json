@@ -1,1107 +1,1094 @@
 {
-    "apiVersion": "2",
-    "projectId": "",
-    "dataKey": "AQIDAHi9nATJb1LYgj5u7ShOGp43y2H6TuckRKGDlwTU4b6ryQEE3V1e7v05clHxBXGfi4yRAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMBnLi+E+d1BYQANwjAgEQgDv1tdzJAAj2USYQWNugDHnn9d56rKJSsacX0h+LE+yCaCb3pieTYOVCHC/4qTcYBpQDwBQtBKSYRBCyog==",
-    "version": 248,
-    "created": "2022-03-08T18:16:09.325Z",
-    "updated": "2022-03-23T13:34:18.268Z",
-    "defaultLocale": "en-us",
-    "locales": ["en-us"],
-    "workflows": {},
-    "indexedShapes": {
-      "Recharge_Product": {
-        "queries": {
-          "list": {
-            "name": "listRechargeProducts",
-            "pagination": {
-              "type": "cursor",
-              "cursorPath": "products[(@.length-1)].id",
-              "itemsToIndexPath": "products",
-              "hasMorePath": "next_cursor",
-              "cursorArg": "next_cursor",
-              "pageSizeArg": "limit"
-            },
-            "objectDepthLimit": 2
-          }
-        },
-        "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
+  "apiVersion": "2",
+  "projectId": "omitted",
+  "dataKey": "omitted",
+  "version": 341,
+  "created": "2022-03-08T18:16:09.325Z",
+  "updated": "2022-03-29T18:34:40.617Z",
+  "defaultLocale": "en-us",
+  "locales": ["en-us"],
+  "workflows": {},
+  "indexedShapes": {
+    "Recharge_Product": {
+      "queries": {
+        "list": {
+          "name": "listRechargeProducts",
+          "pagination": {
+            "type": "cursor",
+            "cursorPath": "products[(@.length-1)].id",
+            "itemsToIndexPath": "products",
+            "hasMorePath": "next_cursor",
+            "cursorArg": "next_cursor",
+            "pageSizeArg": "limit"
+          },
+          "objectDepthLimit": 2
+        }
       },
-      "Shopify_Product": {
-        "queries": {
-          "list": {"name": "Shopify_products", "objectDepthLimit": 1},
-          "get": {"name": "Shopify_product", "objectDepthLimit": 1}
+      "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
+    },
+    "Shopify_Product": {
+      "queries": {"list": {"name": "Shopify_products", "objectDepthLimit": 1}},
+      "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
+    }
+  },
+  "forms": {
+    "Profile": {
+      "default": {
+        "properties": {
+          "id": {"widget": "singleLineText"},
+          "name": {"widget": "singleLineText"},
+          "firstName": {"widget": "singleLineText"},
+          "lastName": {"widget": "singleLineText"},
+          "email": {"widget": "singleLineText"},
+          "bio": {"widget": "paragraphText"},
+          "avatar": {"widget": "image"},
+          "shopifyCustomerId": {"widget": "singleLineText"}
         },
-        "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
-      },
-      "ShopifyStorefront_Product": {
-        "queries": {
-          "list": {"name": "ShopifyStorefront_products", "objectDepthLimit": 1}
-        },
-        "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
+        "order": [
+          "id",
+          "name",
+          "firstName",
+          "lastName",
+          "email",
+          "bio",
+          "avatar",
+          "shopifyCustomerId"
+        ]
+      }
+    }
+  },
+  "services": {
+    "auth-0": {
+      "id": "auth-0",
+      "provider": "auth0",
+      "title": "auth0",
+      "serviceType": "authentication",
+      "authenticationType": "none",
+      "options": {
+        "domain": "",
+        "audience": ""
       }
     },
-    "forms": {
-      "Profile": {
-        "default": {
-          "properties": {
-            "id": {"widget": "singleLineText"},
-            "name": {"widget": "singleLineText"},
-            "firstName": {"widget": "singleLineText"},
-            "lastName": {"widget": "singleLineText"},
-            "email": {"widget": "singleLineText"},
-            "bio": {"widget": "paragraphText"},
-            "avatar": {"widget": "image"},
-            "shopifyCustomerId": {"widget": "singleLineText"}
+    "recharge": {
+      "id": "recharge",
+      "provider": "generic",
+      "title": "Recharge",
+      "namespace": "Recharge",
+      "serviceType": "rest",
+      "authenticationType": "bearer",
+      "authentication": "",
+      "options": {"endpoint": "https://api.rechargeapps.com"}
+    },
+    "shopify-storefront": {
+      "id": "shopify-storefront",
+      "provider": "generic",
+      "title": "Shopify Storefront",
+      "namespace": "ShopifyStorefront",
+      "serviceType": "graphql",
+      "authenticationType": "bearer",
+      "authentication": ""
+    },
+    "shopify-admin": {
+      "title": "Shopify Admin",
+      "namespace": "Shopify",
+      "provider": "shopify",
+      "serviceType": "graphql",
+      "authenticationType": "oauth2Bearer",
+      "id": "shopify-admin",
+      "authentication": ""
+    }
+  },
+  "queries": {
+    "getIndexedProductList": {
+      "shape": "IndexedShopifyAndRechargeProducts",
+      "resolver": {
+        "results": {
+          "ops": [
+            {
+              "path": "$.recharge",
+              "mapping": [["get", {"path": "$resolvers.recharge"}]]
+            },
+            {
+              "path": "$.shopify",
+              "mapping": [["get", {"path": "$resolvers.shopify"}]]
+            }
+          ]
+        },
+        "compose": [
+          {
+            "id": "shopify",
+            "shapeName": "Shopify_Product",
+            "name": "takeshape:queryApiIndex",
+            "service": "takeshape:local",
+            "options": {"indexedShape": "Shopify_Product"}
           },
-          "order": [
-            "id",
-            "name",
-            "firstName",
-            "lastName",
-            "email",
-            "bio",
-            "avatar",
-            "shopifyCustomerId"
+          {
+            "id": "recharge",
+            "shapeName": "Recharge_Product",
+            "name": "takeshape:queryApiIndex",
+            "service": "takeshape:local",
+            "options": {"indexedShape": "Recharge_Product"}
+          }
+        ]
+      },
+      "description": "Fetch Recharge and Shopify products from the API Index."
+    },
+    "getShopifyAndRechargeProducts": {
+      "shape": "ShopifyAndRechargeProducts",
+      "resolver": {
+        "results": {
+          "ops": [
+            {
+              "path": "recharge",
+              "mapping": [["get", {"path": "$resolvers.recharge"}]]
+            },
+            {
+              "path": "shopify",
+              "mapping": [["get", {"path": "$resolvers.shopify"}]]
+            }
+          ]
+        },
+        "compose": [
+          {
+            "id": "shopify",
+            "name": "graphql:query",
+            "service": "shopify-admin",
+            "fieldName": "products",
+            "options": {
+              "selectionSet": "{edges{node{id title description variants(first:3){edges{node{id}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:10){ edges{ node{ id } } } } }}"
+            },
+            "args": {"ops": [{"path": "first", "mapping": "$args.first"}]}
+          },
+          {
+            "id": "recharge",
+            "name": "rest:get",
+            "service": "recharge",
+            "path": "/products"
+          }
+        ]
+      },
+      "args": {"type": "object", "properties": {"first": {"type": "number"}}},
+      "description": "Get Shopify and Recharge products."
+    },
+    "listRechargeProducts": {
+      "shape": "Recharge_ProductList",
+      "resolver": {
+        "id": "products",
+        "name": "rest:get",
+        "service": "recharge",
+        "path": "/products"
+      },
+      "description": "Get Recharge products."
+    },
+    "getMyProfile": {
+      "shape": "Profile",
+      "resolver": {
+        "name": "takeshape:find",
+        "service": "takeshape:local",
+        "shapeName": "Profile",
+        "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
+      },
+      "description": "Get my profile"
+    },
+    "getMySubscriptions": {
+      "shape": "Recharge_SubscriptionList",
+      "resolver": {
+        "results": {
+          "ops": [
+            {
+              "path": "$",
+              "mapping": [["get", {"path": "$resolvers.subscriptions"}]]
+            }
+          ]
+        },
+        "compose": [
+          {
+            "id": "customerByEmail",
+            "name": "rest:get",
+            "service": "recharge",
+            "path": "/customers",
+            "searchParams": {
+              "ops": [{"path": "email", "mapping": "$claims.email"}]
+            }
+          },
+          {
+            "id": "subscriptions",
+            "name": "rest:get",
+            "service": "recharge",
+            "path": "/subscriptions",
+            "searchParams": {
+              "ops": [
+                {
+                  "path": "shopify_customer_id",
+                  "mapping": "$resolvers.customerByEmail.customers[0].shopify_customer_id"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "description": "Get my subscriptions"
+    },
+    "getMyPayments": {
+      "shape": "Shopify_OrderConnection",
+      "resolver": {
+        "id": "getCustomerOrders",
+        "name": "graphql:query",
+        "service": "shopify-admin",
+        "fieldName": "orders",
+        "args": {
+          "ops": [
+            {
+              "path": "query",
+              "mapping": [
+                ["get", {"path": "$claims.email"}],
+                ["prepend", {"text": "email:"}]
+              ]
+            },
+            {"path": "first", "mapping": "$args.first"}
           ]
         }
-      }
+      },
+      "args": {"type": "object", "properties": {"first": {"type": "number"}}}
     },
-    "services": {
-      "auth-0": {
-        "id": "auth-0",
-        "provider": "auth0",
-        "title": "auth0",
-        "serviceType": "authentication",
-        "authenticationType": "none"
+    "getProfile": {
+      "shape": "Profile",
+      "resolver": {
+        "name": "takeshape:get",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
       },
-      "recharge": {
-        "id": "recharge",
-        "provider": "generic",
-        "title": "Recharge",
-        "namespace": "Recharge",
-        "serviceType": "rest",
-        "authenticationType": "bearer",
-        "options": {"endpoint": "https://api.rechargeapps.com"}
-      },
-      "shopify-storefront": {
-        "id": "shopify-storefront",
-        "provider": "generic",
-        "title": "Shopify Storefront",
-        "namespace": "ShopifyStorefront",
-        "serviceType": "graphql",
-        "authenticationType": "bearer"
-      },
-      "shopify-admin": {
-        "title": "Shopify Admin",
-        "namespace": "Shopify",
-        "provider": "shopify",
-        "serviceType": "graphql",
-        "authenticationType": "oauth2Bearer",
-        "id": "shopify-admin"
-      }
+      "description": "Get a profile by ID",
+      "args": "TSGetArgs<Profile>"
     },
-    "queries": {
-      "getIndexedProductList": {
-        "shape": "IndexedShopifyAndRechargeProducts",
-        "resolver": {
-          "results": {
-            "ops": [
-              {
-                "path": "$.recharge",
-                "mapping": [["get", {"path": "$resolvers.recharge"}]]
-              },
-              {
-                "path": "$.shopify",
-                "mapping": [["get", {"path": "$resolvers.shopify"}]]
-              }
-            ]
-          },
-          "compose": [
-            {
-              "id": "shopify",
-              "shapeName": "Shopify_Product",
-              "name": "takeshape:queryApiIndex",
-              "service": "takeshape:local",
-              "options": {"indexedShape": "Shopify_Product"}
-            },
-            {
-              "id": "recharge",
-              "shapeName": "Recharge_Product",
-              "name": "takeshape:queryApiIndex",
-              "service": "takeshape:local",
-              "options": {"indexedShape": "Recharge_Product"}
-            }
-          ]
-        },
-        "description": "Fetch Recharge and Shopify products from the API Index."
+    "getProfileList": {
+      "shape": "PaginatedList<Profile>",
+      "resolver": {
+        "name": "takeshape:list",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
       },
-      "ShopifyStorefront_products": {
-        "shape": "ShopifyStorefront_ProductConnection",
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-storefront",
-          "fieldName": "products",
-          "options": {"selectionSet": "{edges{node{id}}}"},
-          "args": {"ops": [{"path": "first", "mapping": "$args.first"}]}
-        },
-        "args": {"type": "object", "properties": {"first": {"type": "integer"}}},
-        "description": "Get Shopify storefront products."
-      },
-      "listRechargeProducts": {
-        "shape": "Recharge_ProductList",
-        "resolver": {
-          "id": "products",
-          "name": "rest:get",
-          "service": "recharge",
-          "path": "/products"
-        },
-        "description": "Get Recharge products."
-      },
-      "getMyProfile": {
-        "shape": "Profile",
-        "resolver": {
-          "name": "takeshape:find",
-          "service": "takeshape:local",
-          "shapeName": "Profile",
-          "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-        },
-        "description": "Get my profile"
-      },
-      "getRechargeSubscriptions": {
-        "shape": "Recharge_SubscriptionList",
-        "resolver": {
-          "results": {
-            "ops": [
-              {
-                "path": "$",
-                "mapping": [["get", {"path": "$resolvers.subscriptions"}]]
-              }
-            ]
-          },
-          "compose": [
-            {
-              "id": "customerByEmail",
-              "name": "rest:get",
-              "service": "recharge",
-              "path": "/customers",
-              "searchParams": {
-                "ops": [{"path": "email", "mapping": "$args.email"}]
-              }
-            },
-            {
-              "id": "subscriptions",
-              "name": "rest:get",
-              "service": "recharge",
-              "path": "/subscriptions",
-              "searchParams": {
-                "ops": [
-                  {
-                    "path": "shopify_customer_id",
-                    "mapping": "$resolvers.customerByEmail.customers[0].shopify_customer_id"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        "description": "Get recharge subscriptions",
-        "args": {"type": "object", "properties": {"email": {"type": "string"}}}
-      },
-      "getMySubscriptions": {
-        "shape": "Recharge_SubscriptionList",
-        "resolver": {
-          "results": {
-            "ops": [
-              {
-                "path": "$",
-                "mapping": [["get", {"path": "$resolvers.subscriptions"}]]
-              }
-            ]
-          },
-          "compose": [
-            {
-              "id": "customerByEmail",
-              "name": "rest:get",
-              "service": "recharge",
-              "path": "/customers",
-              "searchParams": {
-                "ops": [{"path": "email", "mapping": "$claims.email"}]
-              }
-            },
-            {
-              "id": "subscriptions",
-              "name": "rest:get",
-              "service": "recharge",
-              "path": "/subscriptions",
-              "searchParams": {
-                "ops": [
-                  {
-                    "path": "shopify_customer_id",
-                    "mapping": "$resolvers.customerByEmail.customers[0].shopify_customer_id"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        "description": "Get my subscriptions"
-      },
-      "getMyPayments": {
-        "shape": "Shopify_OrderConnection",
-        "resolver": {
-          "id": "getCustomerOrders",
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "orders",
-          "args": {
-            "ops": [
-              {
-                "path": "query",
-                "mapping": [
-                  ["get", {"path": "$claims.email"}],
-                  ["prepend", {"text": "email:"}]
-                ]
-              },
-              {"path": "first", "mapping": "$args.first"}
-            ]
-          }
-        },
-        "args": {"type": "object", "properties": {"first": {"type": "number"}}}
-      },
-      "getShopifyAndRechargeProducts": {
-        "shape": "ShopifyAndRechargeProducts",
-        "resolver": {
-          "results": {
-            "ops": [
-              {
-                "path": "$.recharge",
-                "mapping": [["get", {"path": "$resolvers.recharge"}]]
-              },
-              {
-                "path": "$.shopify",
-                "mapping": [["get", {"path": "$resolvers.shopify"}]]
-              }
-            ]
-          },
-          "compose": [
-            {
-              "id": "shopify",
-              "name": "graphql:query",
-              "service": "shopify-admin",
-              "fieldName": "products",
-              "options": {
-                "selectionSet": "{edges{node{id title description variants(first:3){edges{node{id inventoryQuantity}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:1){ edges{ node{ id } } } } }}"
-              },
-              "args": {"ops": [{"path": "first", "mapping": "$args.first"}]}
-            },
-            {
-              "id": "recharge",
-              "name": "rest:get",
-              "service": "recharge",
-              "path": "/products"
-            }
-          ]
-        },
-        "args": {"type": "object", "properties": {"first": {"type": "integer"}}},
-        "description": "Get Shopify and Recharge products."
-      },
-      "getProfile": {
-        "shape": "Profile",
-        "resolver": {
-          "name": "takeshape:get",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Get a profile by ID",
-        "args": "TSGetArgs<Profile>"
-      },
-      "getProfileList": {
-        "shape": "PaginatedList<Profile>",
-        "resolver": {
-          "name": "takeshape:list",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Returns a list of profiles in natural order.",
-        "args": "TSListArgs<Profile>"
-      },
-      "Shopify_product": {
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "product"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "@tag": "id",
-              "description": "The ID of the Product to return."
-            }
-          },
-          "required": ["id"]
-        },
-        "shape": "Shopify_Product"
-      },
-      "Shopify_products": {
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "products"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "first": {
-              "type": "integer",
-              "description": "Returns up to the first `n` elements from the list."
-            },
-            "after": {
-              "type": "string",
-              "description": "Returns the elements that come after the specified cursor."
-            },
-            "last": {
-              "type": "integer",
-              "description": "Returns up to the last `n` elements from the list."
-            },
-            "before": {
-              "type": "string",
-              "description": "Returns the elements that come before the specified cursor."
-            },
-            "reverse": {
-              "type": "boolean",
-              "description": "Reverse the order of the underlying list.",
-              "default": false
-            },
-            "sortKey": {
-              "@ref": "shopify-admin:ProductSortKeys",
-              "description": "Sort the underlying list by the given key.",
-              "default": "ID"
-            },
-            "query": {
-              "type": "string",
-              "description": "Supported filter parameters:\n - `barcode`\n - `created_at`\n - `delivery_profile_id`\n - `error_feedback`\n - `gift_card`\n - `has_only_default_variant`\n - `id`\n - `inventory_total`\n - `is_price_reduced`\n - `out_of_stock_somewhere`\n - `price`\n - `product_type`\n - `publishable_status`\n - `published_status`\n - `sku`\n - `status`\n - `tag`\n - `tag_not`\n - `title`\n - `updated_at`\n - `vendor`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
-            },
-            "savedSearchId": {
-              "type": "string",
-              "@tag": "id",
-              "description": "The ID of an existing saved search.\nThe search’s query string is used as the query argument.\nRefer to [SavedSearch](https://shopify.dev/api/admin-graphql/latest/objects/savedsearch)."
-            }
-          }
-        },
-        "shape": "Shopify_ProductConnection"
-      },
-      "Shopify_orders": {
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "orders"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "first": {
-              "type": "integer",
-              "description": "Returns up to the first `n` elements from the list."
-            },
-            "after": {
-              "type": "string",
-              "description": "Returns the elements that come after the specified cursor."
-            },
-            "last": {
-              "type": "integer",
-              "description": "Returns up to the last `n` elements from the list."
-            },
-            "before": {
-              "type": "string",
-              "description": "Returns the elements that come before the specified cursor."
-            },
-            "reverse": {
-              "type": "boolean",
-              "description": "Reverse the order of the underlying list.",
-              "default": false
-            },
-            "sortKey": {
-              "@ref": "shopify-admin:OrderSortKeys",
-              "description": "Sort the underlying list by the given key.",
-              "default": "PROCESSED_AT"
-            },
-            "query": {
-              "type": "string",
-              "description": "Supported filter parameters:\n - `cart_token`\n - `channel`\n - `channel_id`\n - `chargeback_status`\n - `checkout_token`\n - `created_at`\n - `credit_card_last4`\n - `customer_id`\n - `delivery_method`\n - `discount_code`\n - `earliest_fulfill_by`\n - `email`\n - `financial_status`\n - `fraud_protection_level`\n - `fulfillment_location_id`\n - `fulfillment_status`\n - `gateway`\n - `location_id`\n - `name`\n - `payment_provider_id`\n - `processed_at`\n - `reference_location_id`\n - `return_status`\n - `risk_level`\n - `sales_channel`\n - `source_identifier`\n - `source_name`\n - `status`\n - `tag`\n - `tag_not`\n - `test`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
-            },
-            "savedSearchId": {
-              "type": "string",
-              "@tag": "id",
-              "description": "The ID of an existing saved search.\nThe search’s query string is used as the query argument.\nRefer to [SavedSearch](https://shopify.dev/api/admin-graphql/latest/objects/savedsearch)."
-            }
-          }
-        },
-        "shape": "Shopify_OrderConnection"
-      },
-      "Shopify_customers": {
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "customers"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "first": {
-              "type": "integer",
-              "description": "Returns up to the first `n` elements from the list."
-            },
-            "after": {
-              "type": "string",
-              "description": "Returns the elements that come after the specified cursor."
-            },
-            "last": {
-              "type": "integer",
-              "description": "Returns up to the last `n` elements from the list."
-            },
-            "before": {
-              "type": "string",
-              "description": "Returns the elements that come before the specified cursor."
-            },
-            "reverse": {
-              "type": "boolean",
-              "description": "Reverse the order of the underlying list.",
-              "default": false
-            },
-            "sortKey": {
-              "@ref": "shopify-admin:CustomerSortKeys",
-              "description": "Sort the underlying list by the given key.",
-              "default": "ID"
-            },
-            "query": {
-              "type": "string",
-              "description": "Supported filter parameters:\n - `accepts_marketing`\n - `country`\n - `customer_date`\n - `email`\n - `last_abandoned_order_date`\n - `order_date`\n - `orders_count`\n - `phone`\n - `state`\n - `tag`\n - `tag_not`\n - `total_spent`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
-            }
-          }
-        },
-        "shape": "Shopify_CustomerConnection"
-      },
-      "Shopify_customer": {
-        "resolver": {
-          "name": "graphql:query",
-          "service": "shopify-admin",
-          "fieldName": "customer"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "@tag": "id",
-              "description": "The ID of the Customer to return."
-            }
-          },
-          "required": ["id"]
-        },
-        "shape": "Shopify_Customer"
-      }
+      "description": "Returns a list of profiles in natural order.",
+      "args": "TSListArgs<Profile>"
     },
-    "mutations": {
-      "upsertMyProfile": {
-        "shape": "Profile",
-        "resolver": {
-          "results": {
-            "ops": [
-              {"path": "$", "mapping": "$resolvers.createProfile.result"},
-              {"path": "$", "mapping": "$resolvers.updateProfile.result"}
-            ]
+    "Shopify_products": {
+      "resolver": {
+        "name": "graphql:query",
+        "service": "shopify-admin",
+        "fieldName": "products"
+      },
+      "args": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "number",
+            "description": "Returns up to the first `n` elements from the list."
           },
-          "compose": [
-            {
-              "if": "!isEmpty($claims.sub)",
-              "id": "existingProfile",
-              "name": "takeshape:find",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-            },
-            {
-              "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
-              "id": "createShopifyCustomer",
-              "name": "graphql:mutation",
-              "service": "shopify-admin",
-              "fieldName": "customerCreate",
-              "args": {
-                "ops": [{"path": "input.email", "mapping": "$claims.email"}]
-              }
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && isEmpty($resolvers.existingProfile)",
-              "id": "createProfile",
-              "name": "takeshape:create",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {
-                "ops": [
-                  {"path": "input.id", "mapping": "$claims.sub"},
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.name", "mapping": "$args.firstName"},
-                  {"path": "input.bio", "mapping": "$args.bio"},
-                  {"path": "input.avatar.id", "mapping": "$args.avatarId"},
-                  {
-                    "path": "input.shopifyCustomerId",
-                    "mapping": [
-                      [
-                        "get",
-                        {"path": "$resolvers.createShopifyCustomer.customer.id"}
-                      ]
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
-              "id": "updateProfile",
-              "name": "takeshape:update",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {
-                "ops": [
-                  {
-                    "path": "input._id",
-                    "mapping": "$resolvers.existingProfile._id"
-                  },
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.name", "mapping": "$args.name"},
-                  {
-                    "path": "input.name",
-                    "mapping": "$resolvers.createShopifyCustomer.customer.displayName"
-                  },
-                  {"path": "input.bio", "mapping": "$args.bio"},
-                  {"path": "input.avatar.id", "mapping": "$args.avatarId"},
-                  {
-                    "path": "input.shopifyCustomerId",
-                    "mapping": [
-                      [
-                        "get",
-                        {"path": "$resolvers.existingProfile.shopifyCustomerId"}
-                      ],
-                      [
-                        "get",
-                        {"path": "$resolvers.createShopifyCustomer.customer.id"}
-                      ]
-                    ]
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        "description": "Upsert my profile.",
-        "args": {
-          "type": "object",
-          "properties": {
-            "bio": {"type": "string"},
-            "avatarId": {"type": "string"},
-            "name": {"type": "string"},
-            "firstName": {"type": "string"},
-            "lastName": {"type": "string"}
+          "after": {
+            "type": "string",
+            "description": "Returns the elements that come after the specified cursor."
+          },
+          "last": {
+            "type": "number",
+            "description": "Returns up to the last `n` elements from the list."
+          },
+          "before": {
+            "type": "string",
+            "description": "Returns the elements that come before the specified cursor."
+          },
+          "reverse": {
+            "type": "boolean",
+            "description": "Reverse the order of the underlying list.",
+            "default": false
+          },
+          "sortKey": {
+            "@ref": "shopify-admin:ProductSortKeys",
+            "description": "Sort the underlying list by the given key.",
+            "default": "ID"
+          },
+          "query": {
+            "type": "string",
+            "description": "Supported filter parameters:\n - `barcode`\n - `created_at`\n - `delivery_profile_id`\n - `error_feedback`\n - `gift_card`\n - `has_only_default_variant`\n - `id`\n - `inventory_total`\n - `is_price_reduced`\n - `out_of_stock_somewhere`\n - `price`\n - `product_type`\n - `publishable_status`\n - `published_status`\n - `sku`\n - `status`\n - `tag`\n - `tag_not`\n - `title`\n - `updated_at`\n - `vendor`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters."
+          },
+          "savedSearchId": {
+            "type": "string",
+            "@tag": "id",
+            "description": "The ID of an existing saved search.\nThe search’s query string is used as the query argument.\nRefer to [SavedSearch](https://shopify.dev/api/admin-graphql/latest/objects/savedsearch)."
           }
         }
       },
-      "upsertMyCustomer": {
-        "shape": "Profile",
-        "resolver": {
-          "results": {
-            "ops": [{"path": "$", "mapping": "$resolvers.updateProfile"}]
+      "shape": "Shopify_ProductConnection"
+    }
+  },
+  "mutations": {
+    "upsertMyProfile": {
+      "shape": "Profile",
+      "resolver": {
+        "results": {
+          "ops": [
+            {"path": "$", "mapping": "$resolvers.createProfile.result"},
+            {"path": "$", "mapping": "$resolvers.updateProfile.result"}
+          ]
+        },
+        "compose": [
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "existingProfile",
+            "name": "takeshape:find",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
           },
-          "compose": [
+          {
+            "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+            "id": "createShopifyCustomer",
+            "name": "graphql:mutation",
+            "service": "shopify-admin",
+            "fieldName": "customerCreate",
+            "args": {
+              "ops": [
+                {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"}
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && isEmpty($resolvers.existingProfile)",
+            "id": "createProfile",
+            "name": "takeshape:create",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {
+              "ops": [
+                {"path": "input.id", "mapping": "$claims.sub"},
+                {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.name", "mapping": "$args.firstName"},
+                {"path": "input.bio", "mapping": "$args.bio"},
+                {"path": "input.avatar.id", "mapping": "$args.avatarId"},
+                {
+                  "path": "input.shopifyCustomerId",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.createShopifyCustomer.customer.id"}
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
+            "id": "updateProfile",
+            "name": "takeshape:update",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {
+              "ops": [
+                {
+                  "path": "input._id",
+                  "mapping": "$resolvers.existingProfile._id"
+                },
+                {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.name", "mapping": "$args.name"},
+                {"path": "input.bio", "mapping": "$args.bio"},
+                {"path": "input.avatar.id", "mapping": "$args.avatarId"},
+                {
+                  "path": "input.shopifyCustomerId",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ],
+                    [
+                      "get",
+                      {"path": "$resolvers.createShopifyCustomer.customer.id"}
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "description": "Upsert my profile.",
+      "args": {
+        "type": "object",
+        "properties": {
+          "bio": {"type": "string"},
+          "avatarId": {"type": "string"},
+          "name": {"type": "string"},
+          "firstName": {"type": "string"},
+          "lastName": {"type": "string"}
+        }
+      }
+    },
+    "upsertMyCustomer": {
+      "shape": "Profile",
+      "resolver": {
+        "results": {
+          "ops": [{"path": "$", "mapping": "$resolvers.updateProfile"}]
+        },
+        "compose": [
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "existingProfile",
+            "name": "takeshape:find",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
+            "id": "updateProfile",
+            "name": "takeshape:update",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {
+              "ops": [
+                {
+                  "path": "input._id",
+                  "mapping": "$resolvers.existingProfile._id"
+                },
+                {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.name", "mapping": "$args.name"},
+                {"path": "input.bio", "mapping": "$args.bio"},
+                {"path": "input.avatar.id", "mapping": "$args.avatarId"}
+              ]
+            }
+          }
+        ]
+      },
+      "description": "Upsert my customer.",
+      "args": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "address": {
+            "type": "object",
+            "properties": {
+              "line1": {"type": "string"},
+              "line2": {"type": "string"},
+              "city": {"type": "string"},
+              "country": {"type": "string"},
+              "postal_code": {"type": "string"},
+              "state": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "deleteMySubscription": {
+      "shape": "Profile",
+      "resolver": {
+        "results": {
+          "ops": [
             {
-              "if": "!isEmpty($claims.sub)",
-              "id": "existingProfile",
-              "name": "takeshape:find",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
-              "id": "updateProfile",
-              "name": "takeshape:update",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {
-                "ops": [
-                  {
-                    "path": "input._id",
-                    "mapping": "$resolvers.existingProfile._id"
-                  },
-                  {"path": "input.email", "mapping": "$claims.email"},
-                  {"path": "input.name", "mapping": "$args.name"},
-                  {"path": "input.bio", "mapping": "$args.bio"},
-                  {"path": "input.avatar.id", "mapping": "$args.avatarId"}
-                ]
-              }
+              "path": "result",
+              "mapping": [["get", {"path": "$resolvers.existingProfile"}]]
             }
           ]
         },
-        "description": "Upsert my customer.",
-        "args": {
-          "type": "object",
-          "properties": {
-            "name": {"type": "string"},
-            "description": {"type": "string"},
-            "address": {
+        "compose": [
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "existingProfile",
+            "name": "takeshape:find",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($resolvers.existingProfile)",
+            "id": "deleteSubscription",
+            "name": "rest:delete",
+            "service": "recharge",
+            "path": {
+              "ops": [
+                {"path": "subscriptionId", "mapping": "$args.subscriptionId"}
+              ],
+              "serialize": {"template": "/subscriptions/{subscriptionId}"}
+            }
+          }
+        ]
+      },
+      "description": "Delete a Recharge subscription",
+      "args": {
+        "type": "object",
+        "properties": {"subscriptionId": {"type": "integer"}},
+        "required": ["subscriptionId"]
+      }
+    },
+    "createMyCheckoutSession": {
+      "shape": "local:MyShopifyStorefront_Cart",
+      "resolver": {
+        "results": {
+          "ops": [{"path": "$", "mapping": "$resolvers.getShopifyCart"}]
+        },
+        "compose": [
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "createShopifyCart",
+            "name": "graphql:mutation",
+            "service": "shopify-storefront",
+            "fieldName": "cartCreate",
+            "options": {"selectionSet": "{cart{id}}"},
+            "args": {
+              "ops": [
+                {"path": "input.lines", "mapping": "$args.lines"},
+                {
+                  "path": "input.buyerIdentity.email",
+                  "mapping": "$claims.email"
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "getShopifyCart",
+            "name": "graphql:query",
+            "service": "shopify-storefront",
+            "fieldName": "cart",
+            "options": {"selectionSet": "{checkoutUrl}"},
+            "args": {
+              "ops": [
+                {
+                  "path": "id",
+                  "mapping": "$resolvers.createShopifyCart.cart.id"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "description": "Create a Shopify storefront checkout session.",
+      "args": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
               "type": "object",
               "properties": {
-                "line1": {"type": "string"},
-                "line2": {"type": "string"},
-                "city": {"type": "string"},
-                "country": {"type": "string"},
-                "postal_code": {"type": "string"},
-                "state": {"type": "string"}
+                "quantity": {"type": "integer"},
+                "merchandiseId": {"type": "string"},
+                "sellingPlanId": {"type": "string"}
+              }
+            }
+          }
+        },
+        "required": ["lines"]
+      }
+    },
+    "updateProfile": {
+      "shape": "UpdateResult<Profile>",
+      "resolver": {
+        "name": "takeshape:update",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
+      },
+      "description": "Update Profile",
+      "args": "UpdateArgs<Profile>"
+    },
+    "createProfile": {
+      "shape": "CreateResult<Profile>",
+      "resolver": {
+        "name": "takeshape:create",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
+      },
+      "description": "Create Profile",
+      "args": "CreateArgs<Profile>"
+    },
+    "duplicateProfile": {
+      "shape": "DuplicateResult<Profile>",
+      "resolver": {
+        "name": "takeshape:duplicate",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
+      },
+      "description": "Duplicate Profile",
+      "args": "DuplicateArgs<Profile>"
+    },
+    "deleteProfile": {
+      "shape": "DeleteResult<Profile>",
+      "resolver": {
+        "name": "takeshape:delete",
+        "service": "takeshape:local",
+        "shapeName": "Profile"
+      },
+      "description": "Delete Profile",
+      "args": "DeleteArgs<Profile>"
+    }
+  },
+  "shapes": {
+    "Shopify_Product": {
+      "id": "Shopify_Product",
+      "name": "Shopify_Product",
+      "title": "Shopify_Product",
+      "schema": {
+        "extends": [
+          {"@ref": "shopify-admin:Product"},
+          {
+            "type": "object",
+            "properties": {
+              "storefrontData": {
+                "@ref": "local:MyShopifyStorefront_Product",
+                "@resolver": {
+                  "name": "graphql:query",
+                  "service": "shopify-storefront",
+                  "if": "$source.handle",
+                  "fieldName": "productByHandle",
+                  "options": {
+                    "selectionSet": "{ id variants(first: 1){ edges{ node{ id } } } sellingPlanGroups(first:1){ edges{ node{sellingPlans(first:1){ edges{ node{ id } } } } }}}"
+                  },
+                  "args": {
+                    "ops": [{"path": "handle", "mapping": "$source.handle"}]
+                  }
+                },
+                "title": "Metadata"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "MyShopifyStorefront_Product": {
+      "id": "MyShopifyStorefront_Product",
+      "name": "MyShopifyStorefront_Product",
+      "title": "MyShopifyStorefront_Product",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "variants": {
+            "type": "object",
+            "properties": {
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "object",
+                      "properties": {"id": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sellingPlanGroups": {
+            "type": "object",
+            "properties": {
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "object",
+                      "properties": {
+                        "sellingPlans": {
+                          "type": "object",
+                          "properties": {
+                            "edges": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "node": {
+                                    "type": "object",
+                                    "properties": {"id": {"type": "string"}}
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
-      },
-      "deleteMySubscription": {
-        "shape": "Profile",
-        "resolver": {
-          "results": {
-            "ops": [
-              {
-                "path": "result",
-                "mapping": [["get", {"path": "$resolvers.existingProfile"}]]
-              }
-            ]
-          },
-          "compose": [
-            {
-              "if": "!isEmpty($claims.sub)",
-              "id": "existingProfile",
-              "name": "takeshape:find",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-            },
-            {
-              "if": "!isEmpty($claims.sub) && !isEmpty($resolvers.existingProfile)",
-              "id": "deleteSubscription",
-              "name": "rest:delete",
+      }
+    },
+    "MyShopifyStorefront_Cart": {
+      "id": "MyShopifyStorefront_Cart",
+      "name": "MyShopifyStorefront_Cart",
+      "title": "MyShopifyStorefront_Cart",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "checkoutUrl": {
+            "type": "string",
+            "description": "The url to the checkout for the cart",
+            "title": "checkoutUrl"
+          }
+        }
+      }
+    },
+    "Recharge_SubscriptionList": {
+      "id": "Recharge_SubscriptionList",
+      "name": "Recharge_SubscriptionList",
+      "title": "Recharge_SubscriptionList",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "subscriptions": {
+            "type": "array",
+            "items": {"@ref": "local:Recharge_Subscription"},
+            "description": "",
+            "title": "subscriptions"
+          }
+        }
+      }
+    },
+    "Recharge_Subscription": {
+      "id": "Recharge_Subscription",
+      "name": "Recharge_Subscription",
+      "title": "Recharge_Subscription",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "number", "title": "ID"},
+          "next_charge_scheduled_at": {"type": "string"},
+          "price": {"type": "number"},
+          "order_interval_unit": {"type": "string"},
+          "recharge_product_id": {"type": "number"},
+          "recharge_product": {
+            "@ref": "local:Recharge_Product",
+            "@resolver": {
+              "name": "rest:get",
               "service": "recharge",
+              "if": "$source.recharge_product_id",
               "path": {
                 "ops": [
-                  {"path": "subscriptionId", "mapping": "$args.subscriptionId"}
+                  {
+                    "path": "productId",
+                    "mapping": "$source.recharge_product_id"
+                  }
                 ],
-                "serialize": {"template": "/subscriptions/{subscriptionId}"}
-              }
-            }
-          ]
-        },
-        "description": "Delete a Recharge subscription",
-        "args": {
-          "type": "object",
-          "properties": {"subscriptionId": {"type": "number"}},
-          "required": ["subscriptionId"]
-        }
-      },
-      "createMyCheckoutSession": {
-        "shape": "local:ShopifyStorefront_Checkout",
-        "resolver": {
-          "compose": [
-            {
-              "if": "!isEmpty($claims.sub)",
-              "id": "existingProfile",
-              "name": "takeshape:find",
-              "service": "takeshape:local",
-              "shapeName": "Profile",
-              "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-            },
-            {
-              "if": "!isEmpty($claims.sub)",
-              "id": "createShopifyCheckout",
-              "name": "graphql:mutation",
-              "service": "shopify-storefront",
-              "fieldName": "checkoutCreate",
-              "options": {
-                "selectionSet": "{checkout{webUrl} checkoutUserErrors{code field message}queueToken}"
+                "serialize": {"template": "/products/{productId}"}
               },
-              "args": {
-                "ops": [
-                  {"path": "input.lineItems", "mapping": "$args.input.lineItems"},
-                  {"path": "input.email", "mapping": "$claims.email"}
-                ]
+              "results": {
+                "ops": [{"path": "$", "mapping": "$finalResolver.product"}]
               }
-            }
-          ]
-        },
-        "description": "Create a Shopify storefront checkout session.",
-        "args": {
-          "type": "object",
-          "properties": {
-            "input": {"@ref": "shopify-storefront:CheckoutCreateInput"}
-          },
-          "required": ["input"]
-        }
-      },
-      "updateProfile": {
-        "shape": "UpdateResult<Profile>",
-        "resolver": {
-          "name": "takeshape:update",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Update Profile",
-        "args": "UpdateArgs<Profile>"
-      },
-      "createProfile": {
-        "shape": "CreateResult<Profile>",
-        "resolver": {
-          "name": "takeshape:create",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Create Profile",
-        "args": "CreateArgs<Profile>"
-      },
-      "duplicateProfile": {
-        "shape": "DuplicateResult<Profile>",
-        "resolver": {
-          "name": "takeshape:duplicate",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Duplicate Profile",
-        "args": "DuplicateArgs<Profile>"
-      },
-      "deleteProfile": {
-        "shape": "DeleteResult<Profile>",
-        "resolver": {
-          "name": "takeshape:delete",
-          "service": "takeshape:local",
-          "shapeName": "Profile"
-        },
-        "description": "Delete Profile",
-        "args": "DeleteArgs<Profile>"
-      },
-      "Shopify_customerCreate": {
-        "resolver": {
-          "name": "graphql:mutation",
-          "service": "shopify-admin",
-          "fieldName": "customerCreate"
-        },
-        "args": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "@ref": "shopify-admin:CustomerInput",
-              "description": "The input fields to create a customer."
-            }
-          },
-          "required": ["input"]
-        },
-        "shape": "Shopify_CustomerCreatePayload"
-      }
-    },
-    "shapes": {
-      "Recharge_SubscriptionList": {
-        "id": "Recharge_SubscriptionList",
-        "name": "Recharge_SubscriptionList",
-        "title": "Recharge_SubscriptionList",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "subscriptions": {
-              "type": "array",
-              "items": {"@ref": "local:Recharge_Subscription"},
-              "description": "",
-              "title": "subscriptions"
             }
           }
         }
-      },
-      "Recharge_Subscription": {
-        "id": "Recharge_Subscription",
-        "name": "Recharge_Subscription",
-        "title": "Recharge_Subscription",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {"type": "number", "title": "ID"},
-            "next_charge_scheduled_at": {"type": "string"},
-            "price": {"type": "number"},
-            "order_interval_unit": {"type": "string"},
-            "recharge_product_id": {"type": "number"},
-            "recharge_product": {
-              "@ref": "local:Recharge_Product",
-              "@resolver": {
-                "name": "rest:get",
-                "service": "recharge",
-                "if": "$source.recharge_product_id",
-                "path": {
-                  "ops": [
-                    {
-                      "path": "productId",
-                      "mapping": "$source.recharge_product_id"
+      }
+    },
+    "ShopifyStorefront_Checkout": {
+      "id": "ShopifyStorefront_Checkout",
+      "name": "ShopifyStorefront_Checkout",
+      "title": "ShopifyStorefront_Checkout",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "checkout": {
+            "type": "object",
+            "description": "A shopify storefront checkout",
+            "title": "Storefront checkout",
+            "properties": {
+              "webUrl": {
+                "type": "string",
+                "description": "The url to the web checkout",
+                "title": "Web url"
+              }
+            }
+          },
+          "checkoutUserErrors": {
+            "type": "object",
+            "properties": {
+              "code": {"type": "string"},
+              "fields": {"type": "string"},
+              "message": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "ShopifyAndRechargeProducts": {
+      "id": "ShopifyAndRechargeProducts",
+      "name": "ShopifyAndRechargeProducts",
+      "title": "ShopifyAndRechargeProducts",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "shopify": {"@ref": "local:MyShopifyProductConnection"},
+          "recharge": {"@ref": "local:Recharge_ProductList"}
+        }
+      }
+    },
+    "MyShopifyProductConnection": {
+      "id": "MyShopifyProductConnection",
+      "name": "MyShopifyProductConnection",
+      "title": "MyShopifyProductConnection",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "node": {
+                  "type": "object",
+                  "properties": {
+                    "id": {"type": "string"},
+                    "title": {"type": "string"},
+                    "description": {"type": "string"},
+                    "sellingPlanGroupCount": {"type": "number"},
+                    "sellingPlanGroups": {
+                      "type": "object",
+                      "properties": {
+                        "edges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "node": {
+                                "type": "object",
+                                "properties": {"id": {"type": "string"}}
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "variants": {
+                      "type": "object",
+                      "properties": {
+                        "edges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "node": {
+                                "type": "object",
+                                "properties": {"id": {"type": "string"}}
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "images": {
+                      "type": "object",
+                      "properties": {
+                        "edges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "node": {
+                                "type": "object",
+                                "properties": {"url": {"type": "string"}}
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "priceRangeV2": {
+                      "type": "object",
+                      "properties": {
+                        "maxVariantPrice": {
+                          "type": "object",
+                          "properties": {
+                            "amount": {"type": "string"},
+                            "currencyCode": {"type": "string"}
+                          }
+                        }
+                      }
                     }
-                  ],
-                  "serialize": {"template": "/products/{productId}"}
-                },
-                "results": {
-                  "ops": [{"path": "$", "mapping": "$finalResolver.product"}]
+                  }
                 }
-              }
-            }
-          }
-        }
-      },
-      "ShopifyStorefront_Checkout": {
-        "id": "ShopifyStorefront_Checkout",
-        "name": "ShopifyStorefront_Checkout",
-        "title": "ShopifyStorefront_Checkout",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "checkout": {
-              "type": "object",
-              "description": "A shopify storefront checkout",
-              "title": "Storefront checkout",
-              "properties": {
-                "webUrl": {
-                  "type": "string",
-                  "description": "The url to the web checkout",
-                  "title": "Web url"
-                }
-              }
-            },
-            "checkoutUserErrors": {
-              "type": "object",
-              "properties": {
-                "code": {"type": "string"},
-                "fields": {"type": "string"},
-                "message": {"type": "string"}
-              }
-            }
-          }
-        }
-      },
-      "ShopifyAndRechargeProducts": {
-        "id": "ShopifyAndRechargeProducts",
-        "name": "ShopifyAndRechargeProducts",
-        "title": "ShopifyAndRechargeProducts",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "shopify": {"@ref": "shopify-admin:ProductConnection"},
-            "recharge": {"@ref": "local:Recharge_ProductList"}
-          }
-        }
-      },
-      "IndexedShopifyAndRechargeProducts": {
-        "id": "IndexedShopifyAndRechargeProducts",
-        "name": "IndexedShopifyAndRechargeProducts",
-        "title": "IndexedShopifyAndRechargeProducts",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "shopify": {
-              "type": "object",
-              "properties": {
-                "items": {
-                  "type": "array",
-                  "items": {"@ref": "shopify-admin:Product"}
-                }
-              }
-            },
-            "recharge": {
-              "type": "object",
-              "properties": {
-                "items": {
-                  "type": "array",
-                  "items": {"@ref": "local:Recharge_Product"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "ShopifyStorefront_Product": {
-        "id": "ShopifyStorefront_Product",
-        "name": "ShopifyStorefront_Product",
-        "title": "ShopifyStorefront_Product",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "description": "",
-              "title": "Storefront product id"
-            }
-          }
-        }
-      },
-      "Recharge_ProductList": {
-        "id": "Recharge_ProductList",
-        "name": "Recharge_ProductList",
-        "title": "Recharge_ProductList",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "products": {
-              "type": "array",
-              "items": {"@ref": "local:Recharge_Product"},
-              "description": "",
-              "title": "products"
-            }
-          }
-        }
-      },
-      "Recharge_Product": {
-        "id": "Recharge_Product",
-        "name": "Recharge_Product",
-        "title": "Recharge_Product",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {"type": "number", "title": "ID"},
-            "product_id": {"type": "number", "title": "product_id"},
-            "shopify_product_id": {
-              "type": "number",
-              "title": "shopify_product_id"
-            },
-            "discount_amount": {"type": "number", "title": "discount_amount"},
-            "subscription_defaults": {
-              "type": "object",
-              "title": "subscription_defaults",
-              "properties": {
-                "charge_interval_frequency": {"type": "number"},
-                "cutoff_day_of_month": {"type": "number"},
-                "cutoff_day_of_week": {"type": "number"},
-                "expire_after_specific_number_of_charges": {"type": "number"},
-                "order_day_of_month": {"type": "number"},
-                "order_day_of_week": {"type": "number"},
-                "order_interval_frequency": {"type": "number"},
-                "order_interval_unit": {"type": "string"},
-                "storefront_purchase_options": {"type": "string"}
-              }
-            },
-            "external_product_id": {
-              "type": "string",
-              "title": "external_product_id"
-            },
-            "brand": {"type": "string", "title": "brand"},
-            "images": {
-              "type": "object",
-              "title": "images",
-              "properties": {
-                "large": {"type": "string", "title": "large"},
-                "medium": {"type": "string", "title": "medium"},
-                "original": {"type": "string", "title": "original"},
-                "small": {"type": "string", "title": "small"}
-              }
-            },
-            "title": {"type": "string", "title": "title"}
-          }
-        }
-      },
-      "Recharge_Customer": {
-        "id": "Recharge_Customer",
-        "name": "Recharge_Customer",
-        "title": "Recharge_Customer",
-        "schema": {
-          "type": "object",
-          "properties": {"id": {"type": "number", "title": "ID"}}
-        }
-      },
-      "Profile": {
-        "id": "K1WGTS1Yn",
-        "name": "Profile",
-        "title": "Profile",
-        "workflow": "default",
-        "model": {"type": "multiple"},
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "ID",
-              "@mapping": "takeshape:local:Profile.zCUrxUP8h"
-            },
-            "name": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "Name",
-              "@mapping": "takeshape:local:Profile.-DrKuNqxZ"
-            },
-            "firstName": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "First Name",
-              "@mapping": "takeshape:local:Profile.-DdKuNqxZ"
-            },
-            "lastName": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "Last Name",
-              "@mapping": "takeshape:local:Profile.H-dKuNqxZ"
-            },
-            "email": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "Email",
-              "@mapping": "takeshape:local:Profile.H8n0k9-ew"
-            },
-            "bio": {
-              "minLength": 0,
-              "type": "string",
-              "description": "",
-              "title": "Bio",
-              "@mapping": "takeshape:local:Profile.2nWp5by8j"
-            },
-            "avatar": {
-              "description": "",
-              "$ref": "#/shapes/TSRelationship/schema",
-              "@relationship": {"shapeIds": ["ASSET"]},
-              "title": "Avatar",
-              "@mapping": "takeshape:local:Profile.k0Ha4O7oV"
-            },
-            "shopifyCustomerId": {
-              "type": "string",
-              "minLength": 0,
-              "description": "",
-              "title": "Shopify Customer ID",
-              "@mapping": "takeshape:local:Profile.Z8JJPxO0B"
-            },
-            "shopifyCustomer": {
-              "title": "Shopify Customer",
-              "description": "",
-              "@ref": "shopify-admin:Customer",
-              "@resolver": {
-                "name": "graphql:query",
-                "service": "shopify-admin",
-                "fieldName": "customer",
-                "args": {
-                  "ops": [{"path": "id", "mapping": "$source.shopifyCustomerId"}]
-                }
-              }
-            },
-            "rechargeCustomer": {
-              "title": "Recharge Customer",
-              "@ref": "local:Recharge_Customer",
-              "@resolver": {
-                "name": "rest:get",
-                "service": "recharge",
-                "path": "/customers/{$source.rechargeCustomerId}"
               }
             }
           }
         }
       }
     },
-    "schemaVersion": "3.17.0"
-  }
+    "IndexedShopifyAndRechargeProducts": {
+      "id": "IndexedShopifyAndRechargeProducts",
+      "name": "IndexedShopifyAndRechargeProducts",
+      "title": "IndexedShopifyAndRechargeProducts",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "shopify": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {"@ref": "local:Shopify_Product"}
+              }
+            }
+          },
+          "recharge": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {"@ref": "local:Recharge_Product"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "Recharge_ProductList": {
+      "id": "Recharge_ProductList",
+      "name": "Recharge_ProductList",
+      "title": "Recharge_ProductList",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {"@ref": "local:Recharge_Product"},
+            "description": "",
+            "title": "products"
+          }
+        }
+      }
+    },
+    "Recharge_Product": {
+      "id": "Recharge_Product",
+      "name": "Recharge_Product",
+      "title": "Recharge_Product",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "number", "title": "ID"},
+          "product_id": {"type": "number", "title": "product_id"},
+          "shopify_product_id": {
+            "type": "number",
+            "title": "shopify_product_id"
+          },
+          "discount_amount": {"type": "number", "title": "discount_amount"},
+          "subscription_defaults": {
+            "type": "object",
+            "title": "subscription_defaults",
+            "properties": {
+              "charge_interval_frequency": {"type": "number"},
+              "cutoff_day_of_month": {"type": "number"},
+              "cutoff_day_of_week": {"type": "number"},
+              "expire_after_specific_number_of_charges": {"type": "number"},
+              "order_day_of_month": {"type": "number"},
+              "order_day_of_week": {"type": "number"},
+              "order_interval_frequency": {"type": "number"},
+              "order_interval_unit": {"type": "string"},
+              "storefront_purchase_options": {"type": "string"}
+            }
+          },
+          "external_product_id": {
+            "type": "string",
+            "title": "external_product_id"
+          },
+          "brand": {"type": "string", "title": "brand"},
+          "images": {
+            "type": "object",
+            "title": "images",
+            "properties": {
+              "large": {"type": "string", "title": "large"},
+              "medium": {"type": "string", "title": "medium"},
+              "original": {"type": "string", "title": "original"},
+              "small": {"type": "string", "title": "small"}
+            }
+          },
+          "title": {"type": "string", "title": "title"}
+        }
+      }
+    },
+    "Profile": {
+      "id": "K1WGTS1Yn",
+      "name": "Profile",
+      "title": "Profile",
+      "workflow": "default",
+      "model": {"type": "multiple"},
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "ID",
+            "@mapping": "takeshape:local:Profile.zCUrxUP8h"
+          },
+          "name": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "Name",
+            "@mapping": "takeshape:local:Profile.-DrKuNqxZ"
+          },
+          "firstName": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "First Name",
+            "@mapping": "takeshape:local:Profile.-DdKuNqxZ"
+          },
+          "lastName": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "Last Name",
+            "@mapping": "takeshape:local:Profile.H-dKuNqxZ"
+          },
+          "email": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "Email",
+            "@mapping": "takeshape:local:Profile.H8n0k9-ew"
+          },
+          "bio": {
+            "minLength": 0,
+            "type": "string",
+            "description": "",
+            "title": "Bio",
+            "@mapping": "takeshape:local:Profile.2nWp5by8j"
+          },
+          "avatar": {
+            "description": "",
+            "$ref": "#/shapes/TSRelationship/schema",
+            "@relationship": {"shapeIds": ["ASSET"]},
+            "title": "Avatar",
+            "@mapping": "takeshape:local:Profile.k0Ha4O7oV"
+          },
+          "shopifyCustomerId": {
+            "type": "string",
+            "minLength": 0,
+            "description": "",
+            "title": "Shopify Customer ID",
+            "@mapping": "takeshape:local:Profile.Z8JJPxO0B"
+          },
+          "shopifyCustomer": {
+            "title": "Shopify Customer",
+            "description": "",
+            "@ref": "shopify-admin:Customer",
+            "@resolver": {
+              "name": "graphql:query",
+              "service": "shopify-admin",
+              "fieldName": "customer",
+              "args": {
+                "ops": [{"path": "id", "mapping": "$source.shopifyCustomerId"}]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "3.17.0"
+}

@@ -24,7 +24,7 @@ function _CheckoutPage() {
       });
 
       clearCart();
-      window.location.assign(data.createMyCheckoutSession.checkout.webUrl);
+      window.location.assign(data.createMyCheckoutSession.checkoutUrl);
     };
     if (isProfileReady) {
       doCheckout();
