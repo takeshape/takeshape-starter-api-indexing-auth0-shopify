@@ -94,6 +94,11 @@
       "provider": "shopify",
       "serviceType": "graphql",
       "authenticationType": "oauth2Bearer",
+      "options": {
+        "shop": "",
+        "endpoint": "",
+        "shopifyPlus": false
+      },
       "id": "shopify-admin",
       "authentication": ""
     }
@@ -647,8 +652,7 @@
                   "args": {
                     "ops": [{"path": "handle", "mapping": "$source.handle"}]
                   }
-                },
-                "title": "Metadata"
+                }
               }
             }
           }

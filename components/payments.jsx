@@ -1,9 +1,8 @@
 import { Grid, Box, Card, IconButton, Paragraph, Text } from '@theme-ui/components';
-import { formatPrice } from 'lib/utils/text';
 import { format } from 'date-fns';
 import { FiCheckCircle, FiArrowDownCircle } from 'react-icons/fi';
 
-export const PaymentItemCard = ({ payment: { created, invoice, currency, amount } }) => {
+export const PaymentItemCard = ({ payment: { created, invoice, amount } }) => {
   return (
     <Card>
       <Grid gap={2} columns={2}>

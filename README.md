@@ -78,11 +78,19 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ![App settings page](./readme_images/configure-storefront.jpg)
 
-   - Enable the `unauthenticated_write_checkouts` and `unauthenticated_read_checkouts`. Then hit Save in the top right.
+   - Enable the following:
+      - `unauthenticated_write_checkouts`
+      - `unauthenticated_read_checkouts`
+      - `unauthenticated_read_customers`
+      - `unauthenticated_write_customers`
+      - `unauthenticated_read_product_listings`
+      - `unauthenticated_read_selling_plans`
+      
+   Then hit Save in the top right.
 
-   - Now select the API credentials tab. You'll see an "Install app" button. Select it and select "Install" on the popup-modal that comes up next.
+   - Now select the API credentials tab. You'll see an "Install app" button. Select it and select the "Install app" above button it, and "Install" on the modal that pops up.
 
-   - The page will now have a "Storefront API access token". Copy it and save it. You'll need it to configure Shopify Storefront in your TakeShape project.
+   - You'll be returned to your app's settings page, where you can select the "API Credentials" tab. You will now have a "Storefront API access token". Copy it and save it. You'll need it to configure Shopify Storefront in your TakeShape project.
 
    ![The access token page](./readme_images/access-token.png)
 
@@ -118,6 +126,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
    - Set up your Shopify Storefront service.
       - Select **Shopify Storefront** from the list of services in the `API` tab, in the `Patterns & Services` pane.
+      - Under **Endpoint**, enter your storefront api endpoint. It should look like `https://your-store.myshopify.com/api/2022-01/graphql.json`
       - Under **Authentication**, Enter `X-Shopify-Storefront-Access-Token` into  the Header field, and your Storefront access token into the Token field.
       - **Save** the service.
       
