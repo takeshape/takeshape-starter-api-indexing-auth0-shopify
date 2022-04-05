@@ -160,7 +160,7 @@
             "service": "shopify-admin",
             "fieldName": "products",
             "options": {
-              "selectionSet": "{edges{node{id title description variants(first:3){edges{node{id}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:10){ edges{ node{ id } } } } }}"
+              "selectionSet": "{edges{node{id handle title description variants(first:3){edges{node{id}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:10){ edges{ node{ id } } } } }}"
             },
             "args": {"ops": [{"path": "first", "mapping": "$args.first"}]}
           },
@@ -825,7 +825,7 @@
       "schema": {
         "type": "object",
         "properties": {
-          "shopify": {"@ref": "local:MyShopifyProductConnection"},
+          "shopify": {"@ref": "shopify-admin:ProductConnection"},
           "recharge": {"@ref": "local:Recharge_ProductList"}
         }
       }

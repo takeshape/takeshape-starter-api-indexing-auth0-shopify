@@ -1,7 +1,6 @@
 # TakeShape Starter Auth0 + Shopify
 
-The following is a guide to launch a Next.JS project that uses Auth0 for authentication, Shopify and Recharge for purchasing products, and TakeShape to store custom user profile information and generate an easy-to-use, user-scoped
-e-commerce GraphQL API.
+The following is a guide to launch a Next.JS project that uses Auth0 for authentication, Shopify and Recharge for purchasing products, and TakeShape to store custom user profile information and generate an easy-to-use, user-scoped e-commerce GraphQL API.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
