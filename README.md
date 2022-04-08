@@ -16,7 +16,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 2. Create an Auth0 application by going to the `Applications` page under the `Applications` tab on the left.
 
-   - Choose to create a `Single Page Application`.
+   - Choose to create a `Single Page Web Application`.
    - Skip the `Quick Start`, and go directly to the `Settings`.
    - Take note of your `domain`, you'll need it later. It typically looks like this: `dev-by9w1mxg.us.auth0.com`.
    - Scroll down, and fill in the following fields:
@@ -24,8 +24,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
      - Allowed Logout URLs: http://localhost:3000/
      - Allowed Web Origins: http://localhost:3000/
      - Allowed Origins (CORS): http://localhost:3000/
-   - Now go to the `Advanced` section, select the `Grants` tab, and verify that `Authorization Code`, `Implicit` and
-     `Refresh Token` are all selected.
+   - Now go to the `Advanced Settings` section, select the `Grant Types` tab, and verify that `Authorization Code`, `Implicit` and `Refresh Token` are all selected.
    - Scroll down to the very bottom of page and click **Save Changes**; the application doesn't automatically save
      itself!
 
@@ -53,8 +52,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
    - Go to `Applications → APIs` and click **Create API**.
    - Set the `identifier` to the `audience` you encountered earlier on the TakeShape Auth0 Service page.
    - Leave the signing algorithm as `RS256`.
-   - From the **Settings** tab, scroll down to **Access Settings** and turn on **Allow Offline Access** — this will
-     allow your project to generate refresh tokens and then refresh user tokens when they expire.
+   - From the **Settings** tab, scroll down to **Access Settings** and turn on **Allow Offline Access** — this will allow your project to generate refresh tokens and then refresh user tokens when they expire.
    - **Save** the API.
 
 ### Shopify

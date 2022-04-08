@@ -1,14 +1,14 @@
 [
     {
-        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
+        "projectId": "60cc1eda-935e-47b4-abb5-b7df0f2f7d3e",
         "conditions": {},
-        "updated": 1648473436274,
+        "updated": 1649162859003,
         "permissions": {
             "Version": "2012-10-17",
             "Statement": [
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getIndexedProductList"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getIndexedProductList"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -17,7 +17,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getShopifyAndRechargeProducts"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getShopifyAndRechargeProducts"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -26,7 +26,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:ShopifyAndRechargeProducts.*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Shopify_Product.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -35,7 +35,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:IndexedShopifyAndRechargeProducts.*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:ShopifyAndRechargeProducts.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -44,7 +44,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Recharge_ProductList.*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:IndexedShopifyAndRechargeProducts.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -53,7 +53,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Recharge_Product.*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Recharge_ProductList.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -62,16 +62,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Shopify_ProductConnection.*"
-                    ],
-                    "Effect": "Allow",
-                    "Action": [
-                        "shape:query"
-                    ]
-                },
-                {
-                    "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:Shopify_Product.*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Recharge_Product.*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -84,7 +75,7 @@
         "name": "anonymous"
     },
     {
-        "projectId": "6193370d-3772-4b7c-8503-1a477b62e3eb",
+        "projectId": "60cc1eda-935e-47b4-abb5-b7df0f2f7d3e",
         "conditions": {
             "ForAllValues:StringEquals": {
                 "claims:provider": "auth0"
@@ -96,7 +87,7 @@
             "Statement": [
                 {
                     "Resource": [
-                        "ts:workflow-step:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                        "ts:workflow-step:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -105,7 +96,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:workflow:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                        "ts:workflow:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:*"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -114,7 +105,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getIndexedProductList"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getIndexedProductList"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -123,7 +114,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getMyPayments"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getMyPayments"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -132,7 +123,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getMyProfile"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getMyProfile"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -141,7 +132,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getMySubscriptions"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getMySubscriptions"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -150,7 +141,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Query.getShopifyAndRechargeProducts"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Query.getShopifyAndRechargeProducts"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -159,7 +150,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.updateAsset"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.updateAsset"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -168,7 +159,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.createAsset"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.createAsset"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -177,7 +168,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.duplicateAsset"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.duplicateAsset"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -186,7 +177,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.deleteAsset"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.deleteAsset"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -195,7 +186,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.upsertMyProfile"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.upsertMyProfile"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -204,7 +195,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.upsertMyCustomer"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.upsertMyCustomer"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -213,7 +204,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.deleteMySubscription"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.deleteMySubscription"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -222,7 +213,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:graphql:6193370d-3772-4b7c-8503-1a477b62e3eb:Mutation.createMyCheckoutSession"
+                        "ts:graphql:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:Mutation.createMyCheckoutSession"
                     ],
                     "Effect": "Allow",
                     "Action": [
@@ -231,7 +222,7 @@
                 },
                 {
                     "Resource": [
-                        "ts:shape:6193370d-3772-4b7c-8503-1a477b62e3eb:*"
+                        "ts:shape:60cc1eda-935e-47b4-abb5-b7df0f2f7d3e:*"
                     ],
                     "Effect": "Allow",
                     "Action": [

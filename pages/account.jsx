@@ -12,18 +12,7 @@ function AccountPage() {
     skip: !isProfileReady
   });
 
-  const ShopifyCustomer = () => {
-    return (
-      <Section>
-        <Heading variant="smallHeading">Shopify Customer</Heading>
-        <Divider />
-
-        {!profileData && <Spinner />}
-
-        {profileData && <CustomerForm customer={profileData.profile?.customer} />}
-      </Section>
-    );
-  };
+  console.log(profileData?.profile?.customer?.edges[0].node.defaultAddress);
 
   return (
     <Page>
@@ -37,6 +26,15 @@ function AccountPage() {
         {!profileData && <Spinner />}
 
         {profileData && <ProfileForm profile={profileData.profile} />}
+      </Section>
+
+      <Section>
+        <Heading variant="smallHeading">Shopify Customer</Heading>
+        <Divider />
+
+        {!profileData && <Spinner />}
+
+        {profileData && <CustomerForm customer={profileData.profile?.customer.edges[0].node} />}
       </Section>
 
       {profileError && (

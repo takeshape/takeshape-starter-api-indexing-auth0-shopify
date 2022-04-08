@@ -19,7 +19,7 @@ function PurchasesPage() {
       id: payment.node.id,
       amount: payment.node.currentTotalPriceSet.shopMoney.amount,
       currency: payment.node.currentTotalPriceSet.shopMoney.currencyCode,
-      created: payment.node.processedAt,
+      created: payment.node.createdAt,
       invoice: {
         id: payment.node.id + Math.floor(Math.random() * 1000),
         paid: payment.node.fullyPaid,

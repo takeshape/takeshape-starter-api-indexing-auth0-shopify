@@ -31,80 +31,8 @@
       "triggers": [{"type": "schedule", "query": "list", "interval": 1440}]
     }
   },
-  "forms": {
-    "Profile": {
-      "default": {
-        "properties": {
-          "id": {"widget": "singleLineText"},
-          "name": {"widget": "singleLineText"},
-          "firstName": {"widget": "singleLineText"},
-          "lastName": {"widget": "singleLineText"},
-          "email": {"widget": "singleLineText"},
-          "bio": {"widget": "paragraphText"},
-          "avatar": {"widget": "image"},
-          "shopifyCustomerId": {"widget": "singleLineText"}
-        },
-        "order": [
-          "id",
-          "name",
-          "firstName",
-          "lastName",
-          "email",
-          "bio",
-          "avatar",
-          "shopifyCustomerId"
-        ]
-      }
-    }
-  },
-  "services": {
-    "auth-0": {
-      "id": "auth-0",
-      "provider": "auth0",
-      "title": "auth0",
-      "serviceType": "authentication",
-      "authenticationType": "none",
-      "options": {
-        "domain": "",
-        "audience": ""
-      }
-    },
-    "recharge": {
-      "id": "recharge",
-      "provider": "generic",
-      "title": "Recharge",
-      "namespace": "Recharge",
-      "serviceType": "rest",
-      "authenticationType": "bearer",
-      "authentication": "",
-      "options": {"endpoint": "https://api.rechargeapps.com"}
-    },
-    "shopify-storefront": {
-      "id": "shopify-storefront",
-      "provider": "generic",
-      "title": "Shopify Storefront",
-      "namespace": "ShopifyStorefront",
-      "serviceType": "graphql",
-      "authenticationType": "bearer",
-      "authentication": ""
-    },
-    "shopify-admin": {
-      "title": "Shopify Admin",
-      "namespace": "Shopify",
-      "provider": "shopify",
-      "serviceType": "graphql",
-      "authenticationType": "oauth2Bearer",
-      "options": {
-        "shop": "",
-        "endpoint": "",
-        "shopifyPlus": false
-      },
-      "id": "shopify-admin",
-      "authentication": ""
-    }
-  },
   "queries": {
-    "getIndexedProductList": {
+    "listIndexedProducts": {
       "shape": "IndexedShopifyAndRechargeProducts",
       "resolver": {
         "results": {
@@ -138,7 +66,7 @@
       },
       "description": "Fetch Recharge and Shopify products from the API Index."
     },
-    "getShopifyAndRechargeProducts": {
+    "listShopifyAndRechargeProducts": {
       "shape": "ShopifyAndRechargeProducts",
       "resolver": {
         "results": {
@@ -326,6 +254,201 @@
     }
   },
   "mutations": {
+    "upsertMyCustomer": {
+      "shape": "Profile",
+      "resolver": {
+        "results": {
+          "ops": [
+            {"path": "$", "mapping": "$resolvers.updatedProfile"},
+            {"path": "$", "mapping": "$resolvers.existingProfile"}
+          ]
+        },
+        "compose": [
+          {
+            "if": "!isEmpty($claims.sub)",
+            "id": "existingProfile",
+            "name": "takeshape:find",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+            "id": "existingCustomerByEmail",
+            "name": "graphql:query",
+            "service": "shopify-admin",
+            "fieldName": "customers",
+            "options": {"selectionSet": "{edges{node{id}}}"},
+            "args": {
+              "ops": [
+                {"path": "first", "value": 1},
+                {
+                  "path": "query",
+                  "mapping": [
+                    ["get", {"path": "$source.email"}],
+                    ["prepend", {"text": "email:"}]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+            "id": "existingCustomerById",
+            "name": "graphql:query",
+            "service": "shopify-admin",
+            "fieldName": "customer",
+            "options": {
+              "selectionSet": "{id firstName lastName defaultAddress{address1 address2 firstName lastName city province provinceCode zip country}}"
+            },
+            "args": {
+              "ops": [
+                {
+                  "path": "id",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && (!isEmpty($resolvers.existingProfile.shopifyCustomerId) || !isEmpty($resolvers.existingCustomerByEmail.edges[0].node.id) || !isEmpty($resolvers.existingCustomerById.id))",
+            "id": "updatedShopifyCustomer",
+            "name": "graphql:mutation",
+            "service": "shopify-admin",
+            "fieldName": "customerUpdate",
+            "options": {
+              "selectionSet": "{customer{id firstName lastName defaultAddress{address1 address2 firstName lastName city province provinceCode zip country}} userErrors{field message}}"
+            },
+            "args": {
+              "ops": [
+                {"path": "input.email", "mapping": "$claims.email"},
+                {
+                  "path": "input.id",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ],
+                    [
+                      "get",
+                      {"path": "$resolvers.createShopifyCustomer.customer.id"}
+                    ],
+                    [
+                      "get",
+                      {
+                        "path": "$resolvers.existingCustomerByEmail.edges[0].node.id"
+                      }
+                    ],
+                    ["get", {"path": "$resolvers.existingCustomerById.id"}],
+                    ["get", {"path": "$args.id"}]
+                  ]
+                },
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"},
+                {"path": "input.note", "mapping": "$args.description"},
+                {
+                  "path": "input.addresses.firstName",
+                  "mapping": "$args.firstName"
+                },
+                {
+                  "path": "input.addresses.lastName",
+                  "mapping": "$args.lastName"
+                },
+                {
+                  "path": "input.addresses.address1",
+                  "mapping": "$args.defaultAddress.address1"
+                },
+                {
+                  "path": "input.addresses.address2",
+                  "mapping": "$args.defaultAddress.address2"
+                },
+                {
+                  "path": "input.addresses.city",
+                  "mapping": "$args.defaultAddress.city"
+                },
+                {
+                  "path": "input.addresses.country",
+                  "mapping": "$args.defaultAddress.country"
+                },
+                {
+                  "path": "input.addresses.zip",
+                  "mapping": "$args.defaultAddress.zip"
+                },
+                {
+                  "path": "input.addresses.provinceCode",
+                  "mapping": "$args.defaultAddress.provinceCode"
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
+            "id": "updatedProfile",
+            "name": "takeshape:update",
+            "service": "takeshape:local",
+            "shapeName": "Profile",
+            "args": {
+              "ops": [
+                {
+                  "path": "input._id",
+                  "mapping": "$resolvers.existingProfile._id"
+                },
+                {
+                  "path": "input.shopifyCustomerId",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.updatedShopifyCustomer.customer.id"}
+                    ],
+                    [
+                      "get",
+                      {
+                        "path": "$resolvers.existingCustomerByEmail.edges[0].node.id"
+                      }
+                    ],
+                    [
+                      "get",
+                      {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ]
+                  ]
+                },
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"}
+              ]
+            }
+          }
+        ]
+      },
+      "description": "Upsert my customer.",
+      "args": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "sub": {"type": "string"},
+          "email": {"type": "string"},
+          "firstName": {"type": "string"},
+          "lastName": {"type": "string"},
+          "description": {"type": "string"},
+          "defaultAddress": {
+            "type": "object",
+            "properties": {
+              "address1": {"type": "string"},
+              "address2": {"type": "string"},
+              "city": {"type": "string"},
+              "country": {"type": "string"},
+              "zip": {"type": "string"},
+              "provinceCode": {"type": "string"},
+              "province": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
     "upsertMyProfile": {
       "shape": "Profile",
       "resolver": {
@@ -345,7 +468,7 @@
             "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
           },
           {
-            "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+            "if": "!isEmpty($claims.email) && isEmpty($resolvers.existingCustomerByEmail) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
             "id": "createShopifyCustomer",
             "name": "graphql:mutation",
             "service": "shopify-admin",
@@ -354,7 +477,58 @@
               "ops": [
                 {"path": "input.email", "mapping": "$claims.email"},
                 {"path": "input.firstName", "mapping": "$args.firstName"},
-                {"path": "input.lastName", "mapping": "$args.lastName"}
+                {"path": "input.lastName", "mapping": "$args.lastName"},
+                {"path": "input.note", "mapping": "$args.bio"}
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && isEmpty($resolvers.existingProfile.shopifyCustomerId)",
+            "id": "existingCustomerByEmail",
+            "name": "graphql:query",
+            "service": "shopify-admin",
+            "fieldName": "customers",
+            "args": {
+              "ops": [
+                {"path": "first", "value": 1},
+                {
+                  "path": "query",
+                  "mapping": [
+                    ["get", {"path": "$source.email"}],
+                    ["prepend", {"text": "email:"}]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if": "!isEmpty($claims.sub) && (!isEmpty($resolvers.existingProfile.shopifyCustomerId) || !isEmpty($resolvers.existingCustomerByEmail.edges[0].node.id)) && isEmpty($resolvers.createShopifyCustomer)",
+            "id": "updateShopifyCustomer",
+            "name": "graphql:mutation",
+            "service": "shopify-admin",
+            "fieldName": "customerUpdate",
+            "args": {
+              "ops": [
+                {
+                  "path": "input.id",
+                  "mapping": [
+                    [
+                      "get",
+                      {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ],
+                    [
+                      "get",
+                      {
+                        "path": "$resolvers.existingCustomerByEmail.edges[0].node.id"
+                      }
+                    ],
+                    ["get", {"path": "$resolvers.existingCustomerById.id"}]
+                  ]
+                },
+                {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"},
+                {"path": "input.note", "mapping": "$args.bio"}
               ]
             }
           },
@@ -366,14 +540,20 @@
             "shapeName": "Profile",
             "args": {
               "ops": [
-                {"path": "input.id", "mapping": "$claims.sub"},
                 {"path": "input.email", "mapping": "$claims.email"},
-                {"path": "input.name", "mapping": "$args.firstName"},
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"},
                 {"path": "input.bio", "mapping": "$args.bio"},
                 {"path": "input.avatar.id", "mapping": "$args.avatarId"},
                 {
                   "path": "input.shopifyCustomerId",
                   "mapping": [
+                    [
+                      "get",
+                      {
+                        "path": "$resolvers.existingCustomerByEmail.edges[0].node.id"
+                      }
+                    ],
                     [
                       "get",
                       {"path": "$resolvers.createShopifyCustomer.customer.id"}
@@ -396,7 +576,8 @@
                   "mapping": "$resolvers.existingProfile._id"
                 },
                 {"path": "input.email", "mapping": "$claims.email"},
-                {"path": "input.name", "mapping": "$args.name"},
+                {"path": "input.firstName", "mapping": "$args.firstName"},
+                {"path": "input.lastName", "mapping": "$args.lastName"},
                 {"path": "input.bio", "mapping": "$args.bio"},
                 {"path": "input.avatar.id", "mapping": "$args.avatarId"},
                 {
@@ -405,6 +586,12 @@
                     [
                       "get",
                       {"path": "$resolvers.existingProfile.shopifyCustomerId"}
+                    ],
+                    [
+                      "get",
+                      {
+                        "path": "$resolvers.existingCustomerByEmail.edges[0].node.id"
+                      }
                     ],
                     [
                       "get",
@@ -423,65 +610,8 @@
         "properties": {
           "bio": {"type": "string"},
           "avatarId": {"type": "string"},
-          "name": {"type": "string"},
           "firstName": {"type": "string"},
           "lastName": {"type": "string"}
-        }
-      }
-    },
-    "upsertMyCustomer": {
-      "shape": "Profile",
-      "resolver": {
-        "results": {
-          "ops": [{"path": "$", "mapping": "$resolvers.updateProfile"}]
-        },
-        "compose": [
-          {
-            "if": "!isEmpty($claims.sub)",
-            "id": "existingProfile",
-            "name": "takeshape:find",
-            "service": "takeshape:local",
-            "shapeName": "Profile",
-            "args": {"ops": [{"path": "where.id.eq", "mapping": "$claims.sub"}]}
-          },
-          {
-            "if": "!isEmpty($claims.sub) && !isEmpty($claims.email) && !isEmpty($resolvers.existingProfile)",
-            "id": "updateProfile",
-            "name": "takeshape:update",
-            "service": "takeshape:local",
-            "shapeName": "Profile",
-            "args": {
-              "ops": [
-                {
-                  "path": "input._id",
-                  "mapping": "$resolvers.existingProfile._id"
-                },
-                {"path": "input.email", "mapping": "$claims.email"},
-                {"path": "input.name", "mapping": "$args.name"},
-                {"path": "input.bio", "mapping": "$args.bio"},
-                {"path": "input.avatar.id", "mapping": "$args.avatarId"}
-              ]
-            }
-          }
-        ]
-      },
-      "description": "Upsert my customer.",
-      "args": {
-        "type": "object",
-        "properties": {
-          "name": {"type": "string"},
-          "description": {"type": "string"},
-          "address": {
-            "type": "object",
-            "properties": {
-              "line1": {"type": "string"},
-              "line2": {"type": "string"},
-              "city": {"type": "string"},
-              "country": {"type": "string"},
-              "postal_code": {"type": "string"},
-              "state": {"type": "string"}
-            }
-          }
         }
       }
     },
@@ -830,96 +960,6 @@
         }
       }
     },
-    "MyShopifyProductConnection": {
-      "id": "MyShopifyProductConnection",
-      "name": "MyShopifyProductConnection",
-      "title": "MyShopifyProductConnection",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "edges": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "node": {
-                  "type": "object",
-                  "properties": {
-                    "id": {"type": "string"},
-                    "title": {"type": "string"},
-                    "description": {"type": "string"},
-                    "sellingPlanGroupCount": {"type": "number"},
-                    "sellingPlanGroups": {
-                      "type": "object",
-                      "properties": {
-                        "edges": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "node": {
-                                "type": "object",
-                                "properties": {"id": {"type": "string"}}
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "variants": {
-                      "type": "object",
-                      "properties": {
-                        "edges": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "node": {
-                                "type": "object",
-                                "properties": {"id": {"type": "string"}}
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "images": {
-                      "type": "object",
-                      "properties": {
-                        "edges": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "node": {
-                                "type": "object",
-                                "properties": {"url": {"type": "string"}}
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "priceRangeV2": {
-                      "type": "object",
-                      "properties": {
-                        "maxVariantPrice": {
-                          "type": "object",
-                          "properties": {
-                            "amount": {"type": "string"},
-                            "currencyCode": {"type": "string"}
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "IndexedShopifyAndRechargeProducts": {
       "id": "IndexedShopifyAndRechargeProducts",
       "name": "IndexedShopifyAndRechargeProducts",
@@ -1028,13 +1068,6 @@
             "title": "ID",
             "@mapping": "takeshape:local:Profile.zCUrxUP8h"
           },
-          "name": {
-            "minLength": 0,
-            "type": "string",
-            "description": "",
-            "title": "Name",
-            "@mapping": "takeshape:local:Profile.-DrKuNqxZ"
-          },
           "firstName": {
             "minLength": 0,
             "type": "string",
@@ -1080,18 +1113,96 @@
           "shopifyCustomer": {
             "title": "Shopify Customer",
             "description": "",
-            "@ref": "shopify-admin:Customer",
+            "@ref": "shopify-admin:CustomerConnection",
             "@resolver": {
               "name": "graphql:query",
               "service": "shopify-admin",
-              "fieldName": "customer",
+              "fieldName": "customers",
               "args": {
-                "ops": [{"path": "id", "mapping": "$source.shopifyCustomerId"}]
+                "ops": [
+                  {"path": "first", "value": 1},
+                  {
+                    "path": "query",
+                    "mapping": [
+                      ["get", {"path": "$source.email"}],
+                      ["prepend", {"text": "email:"}]
+                    ]
+                  }
+                ]
               }
             }
           }
         }
       }
+    }
+  },
+  "forms": {
+    "Profile": {
+      "default": {
+        "properties": {
+          "id": {"widget": "singleLineText"},
+          "name": {"widget": "singleLineText"},
+          "firstName": {"widget": "singleLineText"},
+          "lastName": {"widget": "singleLineText"},
+          "email": {"widget": "singleLineText"},
+          "bio": {"widget": "paragraphText"},
+          "avatar": {"widget": "image"},
+          "shopifyCustomerId": {"widget": "singleLineText"}
+        },
+        "order": [
+          "id",
+          "name",
+          "firstName",
+          "lastName",
+          "email",
+          "bio",
+          "avatar",
+          "shopifyCustomerId"
+        ]
+      }
+    }
+  },
+  "services": {
+    "auth-0": {
+      "id": "auth-0",
+      "provider": "auth0",
+      "title": "auth0",
+      "serviceType": "authentication",
+      "authenticationType": "none",
+      "options": {
+        "domain": "",
+        "audience": ""
+      }
+    },
+    "recharge": {
+      "id": "recharge",
+      "provider": "generic",
+      "title": "Recharge",
+      "namespace": "Recharge",
+      "serviceType": "rest",
+      "authenticationType": "bearer",
+      "options": {"endpoint": "https://api.rechargeapps.com"}
+    },
+    "shopify-storefront": {
+      "id": "shopify-storefront",
+      "provider": "generic",
+      "title": "Shopify Storefront",
+      "namespace": "ShopifyStorefront",
+      "serviceType": "graphql",
+      "authenticationType": "bearer"
+    },
+    "shopify-admin": {
+      "title": "Shopify Admin",
+      "namespace": "Shopify",
+      "provider": "shopify",
+      "serviceType": "graphql",
+      "authenticationType": "oauth2Bearer",
+      "options": {
+        "shop": "",
+        "endpoint": "",
+        "shopifyPlus": false
+      },
+      "id": "shopify-admin"
     }
   },
   "schemaVersion": "3.17.0"

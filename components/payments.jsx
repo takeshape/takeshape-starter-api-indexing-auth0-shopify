@@ -3,12 +3,14 @@ import { format } from 'date-fns';
 import { FiCheckCircle, FiArrowDownCircle } from 'react-icons/fi';
 
 export const PaymentItemCard = ({ payment: { created, invoice, amount } }) => {
+  //Add an extra decimal place
+  amount = (Math.round(amount * 100) / 100).toFixed(2);
   return (
     <Card>
       <Grid gap={2} columns={2}>
         <Box>
           <Text variant="smallHeading" sx={{ color: 'lightGray' }}>
-            {format(new Date(created) * 1000, 'PP')}
+            {format(new Date(created), 'PP')}
           </Text>
         </Box>
         <Box sx={{ textAlign: 'right' }}>
@@ -20,7 +22,7 @@ export const PaymentItemCard = ({ payment: { created, invoice, amount } }) => {
           {invoice?.paid === true ? <FiCheckCircle color="green" /> : null}
         </Box>
       </Grid>
-      Total: {amount}
+      Total: ${amount}
     </Card>
   );
 };
@@ -30,7 +32,7 @@ export const PaymentList = ({ payments }) => {
     <>
       {payments.length ? (
         <Grid gap={3} columns={1}>
-          {payments.map((payment) => (
+          {payments.reverse().map((payment) => (
             <Box key={payment.id}>
               <PaymentItemCard payment={payment} />
             </Box>
