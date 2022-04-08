@@ -21,7 +21,6 @@ import { base } from '@theme-ui/presets';
 const showCartTimeout = 3000;
 const oneTimePurchase = 'one-time';
 const recurringPurchase = 'recurring';
-const intervalOrderMap = ['day', 'week', 'month', 'year'];
 
 export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity }) => {
   quantity = quantity ?? 1;

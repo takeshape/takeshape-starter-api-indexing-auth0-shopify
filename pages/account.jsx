@@ -12,8 +12,6 @@ function AccountPage() {
     skip: !isProfileReady
   });
 
-  console.log(profileData?.profile?.customer?.edges[0].node.defaultAddress);
-
   return (
     <Page>
       <Heading as="h1">Account</Heading>

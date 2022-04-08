@@ -2,7 +2,7 @@ import { Heading, Divider, Alert, Spinner, Container } from '@theme-ui/component
 import { Page } from 'components/layout';
 import { ProductList } from 'components/products';
 import { takeshapeApiUrl, takeshapeApiKey } from 'lib/config';
-import { GetShopifyAndRechargeProducts, GetIndexedProductList } from 'lib/queries';
+import { listShopifyAndRechargeProducts, listIndexedProducts } from 'lib/queries';
 import { createApolloClient } from 'lib/apollo';
 
 function HomePage({ products, error }) {
@@ -42,7 +42,7 @@ export async function getStaticProps() {
 
   try {
     let { data } = await client.query({
-      query: GetIndexedProductList,
+      query: listIndexedProducts,
       errorPolicy: 'ignore'
     });
 
@@ -57,7 +57,7 @@ export async function getStaticProps() {
     let freshData;
     try {
       const { data: queryData } = await client.query({
-        query: GetShopifyAndRechargeProducts,
+        query: listShopifyAndRechargeProducts,
         errorPolicy: 'ignore'
       });
 

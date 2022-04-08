@@ -131,7 +131,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
       - Select **Shopify Admin** from the list of services on the `API` tab, in the `Patterns & Services` pane.
       - Under **myshopify.com URL**, Enter your store's myshopify.com domain, which will look like `https://your-store.myshopify.com`
       - **Save** the service.
-      - Skip the dialog that appears next asking you to import data, queries and mutations.
+      - Select the "Update Schema" button at the bottom-right of the next dialog that appears.
+      - Select the "Skip" button at the bottom-right of the dialog that appears asking you to import data, queries and mutations.
 
 ### Recharge
 
@@ -163,7 +164,7 @@ Now add Recharge your Shopify store, then configure the Recharge service in your
    - Select the products you would like to add subscriptions for, then configure the subscription type as "One-time and subscription". Configure the rest of the product as you'd like, then hit Save.
       - For the purposes of this starter, DO NOT set the product to "Subscription only" or "Pre-paid subscription only".
 
-   ![Product configuration page in recharge](./readme_images/save-product-recharge.PNG)
+   ![Product configuration page in recharge](./readme_images/save-product-recharge.jpg)
 
 3. Configure your Recharge account's permissions to enable API access.
 

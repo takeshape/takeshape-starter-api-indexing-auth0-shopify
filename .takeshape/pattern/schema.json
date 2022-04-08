@@ -1,10 +1,5 @@
 {
   "apiVersion": "2",
-  "projectId": "omitted",
-  "dataKey": "omitted",
-  "version": 341,
-  "created": "2022-03-08T18:16:09.325Z",
-  "updated": "2022-03-29T18:34:40.617Z",
   "defaultLocale": "en-us",
   "locales": ["en-us"],
   "workflows": {},
@@ -38,11 +33,11 @@
         "results": {
           "ops": [
             {
-              "path": "$.recharge",
+              "path": "recharge",
               "mapping": [["get", {"path": "$resolvers.recharge"}]]
             },
             {
-              "path": "$.shopify",
+              "path": "shopify",
               "mapping": [["get", {"path": "$resolvers.shopify"}]]
             }
           ]
@@ -541,6 +536,7 @@
             "args": {
               "ops": [
                 {"path": "input.email", "mapping": "$claims.email"},
+                {"path": "input.id", "mapping": "$claims.sub"},
                 {"path": "input.firstName", "mapping": "$args.firstName"},
                 {"path": "input.lastName", "mapping": "$args.lastName"},
                 {"path": "input.bio", "mapping": "$args.bio"},
@@ -789,6 +785,114 @@
         ]
       }
     },
+    "MyShopifyProduct": {
+      "id": "MyShopifyProduct",
+      "name": "MyShopifyProduct",
+      "title": "MyShopifyProduct",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "storefrontData": {
+            "@ref": "local:MyShopifyStorefront_Product",
+            "@resolver": {
+              "name": "graphql:query",
+              "service": "shopify-storefront",
+              "if": "$source.handle",
+              "fieldName": "productByHandle",
+              "options": {
+                "selectionSet": "{ id variants(first: 1){ edges{ node{ id } } } sellingPlanGroups(first:1){ edges{ node{sellingPlans(first:1){ edges{ node{ id } } } } }}}"
+              },
+              "args": {"ops": [{"path": "handle", "mapping": "$source.handle"}]}
+            }
+          },
+          "handle": {"type": "string"},
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "sellingPlanGroupCount": {"type": "number"},
+          "sellingPlanGroups": {
+            "type": "object",
+            "properties": {
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "object",
+                      "properties": {"id": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "variants": {
+            "type": "object",
+            "properties": {
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "object",
+                      "properties": {"id": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "images": {
+            "type": "object",
+            "properties": {
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "object",
+                      "properties": {"url": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "priceRangeV2": {
+            "type": "object",
+            "properties": {
+              "maxVariantPrice": {
+                "type": "object",
+                "properties": {
+                  "amount": {"type": "string"},
+                  "currencyCode": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "MyShopifyProductConnection": {
+      "id": "MyShopifyProductConnection",
+      "name": "MyShopifyProductConnection",
+      "title": "MyShopifyProductConnection",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {"node": {"@ref": "local:MyShopifyProduct"}}
+            }
+          }
+        }
+      }
+    },
     "MyShopifyStorefront_Product": {
       "id": "MyShopifyStorefront_Product",
       "name": "MyShopifyStorefront_Product",
@@ -955,7 +1059,7 @@
       "schema": {
         "type": "object",
         "properties": {
-          "shopify": {"@ref": "shopify-admin:ProductConnection"},
+          "shopify": {"@ref": "local:MyShopifyProductConnection"},
           "recharge": {"@ref": "local:Recharge_ProductList"}
         }
       }
@@ -1141,7 +1245,6 @@
       "default": {
         "properties": {
           "id": {"widget": "singleLineText"},
-          "name": {"widget": "singleLineText"},
           "firstName": {"widget": "singleLineText"},
           "lastName": {"widget": "singleLineText"},
           "email": {"widget": "singleLineText"},
@@ -1151,7 +1254,6 @@
         },
         "order": [
           "id",
-          "name",
           "firstName",
           "lastName",
           "email",

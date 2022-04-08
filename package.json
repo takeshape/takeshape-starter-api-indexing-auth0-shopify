@@ -31,8 +31,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.25.3",
-    "react-icons": "^4.3.1",
-    "stripe": "^8.201.0"
+    "react-icons": "^4.3.1"
   },
   "prettier": {
     "requirePragma": false,

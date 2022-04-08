@@ -33,7 +33,6 @@ export const SubscriptionItemCard = ({ subscriptionItem }) => {
       node: { url: product.images[imgSize] }
     };
   });
-
   //Remove first element of the array because it never has a url
   imageArray.shift();
 
