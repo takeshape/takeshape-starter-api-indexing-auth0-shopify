@@ -22,8 +22,6 @@ function _CheckoutPage() {
         mutation: CreateMyCheckoutSession,
         variables: getCheckoutPayload(items)
       });
-
-      clearCart();
       window.location.assign(data.createMyCheckoutSession.checkoutUrl);
     };
     if (isProfileReady) {

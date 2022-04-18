@@ -28,7 +28,7 @@
   },
   "queries": {
     "listIndexedProducts": {
-      "shape": "IndexedShopifyAndRechargeProducts",
+      "shape": "IndexedShopifyAndRechargeProductList",
       "resolver": {
         "results": {
           "ops": [
@@ -60,43 +60,6 @@
         ]
       },
       "description": "Fetch Recharge and Shopify products from the API Index."
-    },
-    "listShopifyAndRechargeProducts": {
-      "shape": "ShopifyAndRechargeProducts",
-      "resolver": {
-        "results": {
-          "ops": [
-            {
-              "path": "recharge",
-              "mapping": [["get", {"path": "$resolvers.recharge"}]]
-            },
-            {
-              "path": "shopify",
-              "mapping": [["get", {"path": "$resolvers.shopify"}]]
-            }
-          ]
-        },
-        "compose": [
-          {
-            "id": "shopify",
-            "name": "graphql:query",
-            "service": "shopify-admin",
-            "fieldName": "products",
-            "options": {
-              "selectionSet": "{edges{node{id handle title description variants(first:3){edges{node{id}}} images(first:1){ edges{ node{ url } } } priceRangeV2{ maxVariantPrice{ amount currencyCode } }  sellingPlanGroupCount sellingPlanGroups(first:10){ edges{ node{ id } } } } }}"
-            },
-            "args": {"ops": [{"path": "first", "mapping": "$args.first"}]}
-          },
-          {
-            "id": "recharge",
-            "name": "rest:get",
-            "service": "recharge",
-            "path": "/products"
-          }
-        ]
-      },
-      "args": {"type": "object", "properties": {"first": {"type": "number"}}},
-      "description": "Get Shopify and Recharge products."
     },
     "listRechargeProducts": {
       "shape": "Recharge_ProductList",
@@ -754,7 +717,7 @@
       "args": "DeleteArgs<Profile>"
     }
   },
-  "shapes": {
+  "shapes": {    
     "Shopify_Product": {
       "id": "Shopify_Product",
       "name": "Shopify_Product",
@@ -773,7 +736,7 @@
                   "if": "$source.handle",
                   "fieldName": "productByHandle",
                   "options": {
-                    "selectionSet": "{ id variants(first: 1){ edges{ node{ id } } } sellingPlanGroups(first:1){ edges{ node{sellingPlans(first:1){ edges{ node{ id } } } } }}}"
+                    "selectionSet": "{ id variants(first: 1){ edges{ node{ id sellingPlanAllocations(first:3){ edges{ node{ sellingPlan{id} } } } } } } sellingPlanGroups(first:1){ edges{ node{sellingPlans(first:1){ edges{ node{ id } } } } }}}"
                   },
                   "args": {
                     "ops": [{"path": "handle", "mapping": "$source.handle"}]
@@ -785,109 +748,31 @@
         ]
       }
     },
-    "MyShopifyProduct": {
-      "id": "MyShopifyProduct",
-      "name": "MyShopifyProduct",
-      "title": "MyShopifyProduct",
+    "MyShopifyStorefront_Checkout": {
+      "id": "MyShopifyStorefront_Checkout",
+      "name": "MyShopifyStorefront_Checkout",
+      "title": "MyShopifyStorefront_Checkout",
       "schema": {
         "type": "object",
         "properties": {
-          "storefrontData": {
-            "@ref": "local:MyShopifyStorefront_Product",
-            "@resolver": {
-              "name": "graphql:query",
-              "service": "shopify-storefront",
-              "if": "$source.handle",
-              "fieldName": "productByHandle",
-              "options": {
-                "selectionSet": "{ id variants(first: 1){ edges{ node{ id } } } sellingPlanGroups(first:1){ edges{ node{sellingPlans(first:1){ edges{ node{ id } } } } }}}"
-              },
-              "args": {"ops": [{"path": "handle", "mapping": "$source.handle"}]}
-            }
-          },
-          "handle": {"type": "string"},
-          "id": {"type": "string"},
-          "title": {"type": "string"},
-          "description": {"type": "string"},
-          "sellingPlanGroupCount": {"type": "number"},
-          "sellingPlanGroups": {
+          "checkout": {
             "type": "object",
+            "description": "A shopify storefront checkout",
+            "title": "Storefront checkout",
             "properties": {
-              "edges": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "node": {
-                      "type": "object",
-                      "properties": {"id": {"type": "string"}}
-                    }
-                  }
-                }
+              "webUrl": {
+                "type": "string",
+                "description": "The url to the web checkout",
+                "title": "Web url"
               }
             }
           },
-          "variants": {
+          "checkoutUserErrors": {
             "type": "object",
             "properties": {
-              "edges": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "node": {
-                      "type": "object",
-                      "properties": {"id": {"type": "string"}}
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "images": {
-            "type": "object",
-            "properties": {
-              "edges": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "node": {
-                      "type": "object",
-                      "properties": {"url": {"type": "string"}}
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "priceRangeV2": {
-            "type": "object",
-            "properties": {
-              "maxVariantPrice": {
-                "type": "object",
-                "properties": {
-                  "amount": {"type": "string"},
-                  "currencyCode": {"type": "string"}
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "MyShopifyProductConnection": {
-      "id": "MyShopifyProductConnection",
-      "name": "MyShopifyProductConnection",
-      "title": "MyShopifyProductConnection",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "edges": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {"node": {"@ref": "local:MyShopifyProduct"}}
+              "code": {"type": "string"},
+              "fields": {"type": "string"},
+              "message": {"type": "string"}
             }
           }
         }
@@ -911,7 +796,33 @@
                   "properties": {
                     "node": {
                       "type": "object",
-                      "properties": {"id": {"type": "string"}}
+                      "properties": {
+                        "id": {"type": "string"},
+                        "sellingPlanAllocations": {
+                          "type":"object",
+                          "properties": {
+                            "edges": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties":{
+                                  "node": {
+                                    "type": "object",
+                                    "properties": {
+                                      "sellingPlan": {
+                                        "type":"object",
+                                        "properties":{
+                                          "id": {"type": "string"}
+                                        }
+                                      }                                    
+                                    }
+                                  }                                  
+                                }
+                              }
+                            }
+                          }                        
+                        }
+                      }
                     }
                   }
                 }
@@ -1022,52 +933,10 @@
         }
       }
     },
-    "ShopifyStorefront_Checkout": {
-      "id": "ShopifyStorefront_Checkout",
-      "name": "ShopifyStorefront_Checkout",
-      "title": "ShopifyStorefront_Checkout",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "checkout": {
-            "type": "object",
-            "description": "A shopify storefront checkout",
-            "title": "Storefront checkout",
-            "properties": {
-              "webUrl": {
-                "type": "string",
-                "description": "The url to the web checkout",
-                "title": "Web url"
-              }
-            }
-          },
-          "checkoutUserErrors": {
-            "type": "object",
-            "properties": {
-              "code": {"type": "string"},
-              "fields": {"type": "string"},
-              "message": {"type": "string"}
-            }
-          }
-        }
-      }
-    },
-    "ShopifyAndRechargeProducts": {
-      "id": "ShopifyAndRechargeProducts",
-      "name": "ShopifyAndRechargeProducts",
-      "title": "ShopifyAndRechargeProducts",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "shopify": {"@ref": "local:MyShopifyProductConnection"},
-          "recharge": {"@ref": "local:Recharge_ProductList"}
-        }
-      }
-    },
-    "IndexedShopifyAndRechargeProducts": {
-      "id": "IndexedShopifyAndRechargeProducts",
-      "name": "IndexedShopifyAndRechargeProducts",
-      "title": "IndexedShopifyAndRechargeProducts",
+    "IndexedShopifyAndRechargeProductList": {
+      "id": "IndexedShopifyAndRechargeProductList",
+      "name": "IndexedShopifyAndRechargeProductList",
+      "title": "IndexedShopifyAndRechargeProductList",
       "schema": {
         "type": "object",
         "properties": {
@@ -1101,9 +970,7 @@
         "properties": {
           "products": {
             "type": "array",
-            "items": {"@ref": "local:Recharge_Product"},
-            "description": "",
-            "title": "products"
+            "items": {"@ref": "local:Recharge_Product"}
           }
         }
       }

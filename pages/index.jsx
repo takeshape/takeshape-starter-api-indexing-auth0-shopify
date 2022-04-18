@@ -2,7 +2,7 @@ import { Heading, Divider, Alert, Spinner, Container } from '@theme-ui/component
 import { Page } from 'components/layout';
 import { ProductList } from 'components/products';
 import { takeshapeApiUrl, takeshapeApiKey } from 'lib/config';
-import { listShopifyAndRechargeProducts, listIndexedProducts } from 'lib/queries';
+import { listRechargeProducts, Shopify_products, listIndexedProducts } from 'lib/queries';
 import { createApolloClient } from 'lib/apollo';
 
 function HomePage({ products, error }) {
@@ -41,41 +41,53 @@ export async function getStaticProps() {
   let error = null;
 
   try {
-    let { data } = await client.query({
+    let { data: indexedData } = await client.query({
       query: listIndexedProducts,
       errorPolicy: 'ignore'
     });
 
-    if (!data || data?.errors) {
-      error = data.errors;
+    if (!indexedData || indexedData?.errors) {
+      error = indexedData.errors;
       throw error;
     } else {
-      products.shopifyProducts = data.products.shopify.items;
-      products.rechargeProducts = data.products.recharge.items;
+      products.shopifyProducts = indexedData.products.shopify.items;
+      products.rechargeProducts = indexedData.products.recharge.items;
     }
   } catch (err) {
     let freshData;
     try {
-      const { data: queryData } = await client.query({
-        query: listShopifyAndRechargeProducts,
+      const { data: shopifyData } = await client.query({
+        query: Shopify_products,
         errorPolicy: 'ignore'
       });
 
-      freshData = queryData;
+      const { data: rechargeData } = await client.query({
+        query: listRechargeProducts,
+        errorPolicy: 'ignore'
+      });
 
-      if (freshData?.errors) {
-        error = freshData.errors;
-        throw error;
+      const dataErrors = [];
+      shopifyData?.errors && dataErrors.push(shopifyData.errors);
+      rechargeData?.errors && dataErrors.push(rechargeData.errors);
+
+      freshData = {
+        shopifyData,
+        rechargeData,
+        errors: dataErrors
+      };
+
+      if (freshData?.errors.length > 0) {
+        throw freshData.errors;
       } else {
-        products.shopifyProducts = freshData.products.shopify.items;
-        products.rechargeProducts = freshData.products.recharge.items;
+        products.shopifyProducts = freshData.shopifyData.products.edges;
+        products.rechargeProducts = freshData.rechargeData.products.items;
       }
-    } catch (error) {
-      console.error(err);
-      error = Array.isArray(err) ? err.map((e) => e.message).join() : err.message;
+    } catch (errors) {
+      console.error(errors);
+      error = Array.isArray(errors) ? errors.map((e) => e.message).join() : errors.message;
     }
   } finally {
-    return { props: { products, error } };
+    return { props: { products, error: error ?? null } };
   }
 }
 

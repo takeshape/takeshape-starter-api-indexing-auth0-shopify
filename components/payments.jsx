@@ -4,7 +4,7 @@ import { FiCheckCircle, FiArrowDownCircle } from 'react-icons/fi';
 
 export const PaymentItemCard = ({ payment: { created, invoice, amount } }) => {
   //Add an extra decimal place
-  amount = (Math.round(amount * 100) / 100).toFixed(2);
+  amount = Number(amount).toFixed(2);
   return (
     <Card>
       <Grid gap={2} columns={2}>

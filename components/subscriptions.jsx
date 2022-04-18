@@ -39,7 +39,7 @@ export const SubscriptionItemCard = ({ subscriptionItem }) => {
   return (
     <Card>
       <ProductImage images={imageArray} />
-      <Heading>{product.name}</Heading>
+      <Heading>{product.title}</Heading>
       <Paragraph>
         <Text>
           {formatPrice('USD', subscriptionItem.unitAmount)} / {subscriptionItem.orderIntervalUnit || ''}

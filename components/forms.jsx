@@ -29,7 +29,6 @@ export const CustomerForm = ({ customer }) => {
       <Box
         as="form"
         onSubmit={handleSubmit((variables) => {
-          console.log('Variables', variables);
           setCustomerPayload({ variables });
         })}
       >

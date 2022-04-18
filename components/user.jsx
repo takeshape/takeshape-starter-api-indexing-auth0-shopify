@@ -9,7 +9,7 @@ export const Logout = () => {
 
   const handleLogout = useCallback(async () => {
     await resetStore();
-    await logout();
+    await logout({ returnTo: window.location.origin });
   }, [logout, resetStore]);
 
   return (

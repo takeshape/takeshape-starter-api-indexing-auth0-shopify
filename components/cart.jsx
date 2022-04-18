@@ -48,7 +48,7 @@ const CartItem = ({ product, onChangeQuantity, onClickRemove }) => {
         <Box>
           {product.images?.[0] ? (
             <Image
-              alt={`Image of ${product.name}`}
+              alt={`Image of ${product.title}`}
               src={product.images?.[0].node.url}
               width={100}
               height={100}
@@ -60,7 +60,7 @@ const CartItem = ({ product, onChangeQuantity, onClickRemove }) => {
         </Box>
         <Box>
           <div>
-            <strong>{product.name}</strong>
+            <strong>{product.title}</strong>
           </div>
           <Grid gap={2} columns={3}>
             <ProductPrice price={product.price} />
