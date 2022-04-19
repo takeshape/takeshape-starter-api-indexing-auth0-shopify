@@ -1,3 +1,7 @@
+# EXPERIMENTAL STARTER!
+
+This starter is experimental and for demonstration purposes only. Do not use it in production.
+
 # TakeShape Starter Auth0 + Shopify
 
 The following is a guide to launch a Next.JS project that uses Auth0 for authentication, Shopify and Recharge for purchasing products, and TakeShape to store custom user profile information and generate an easy-to-use, user-scoped e-commerce GraphQL API.
