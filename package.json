@@ -1,5 +1,5 @@
 {
-  "name": "takeshape-starter-auth0-stripe",
+  "name": "takeshape-starter-auth0-shopify",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,8 +14,6 @@
     "@auth0/auth0-react": "^1.9.0",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
-    "@stripe/react-stripe-js": "^1.7.0",
-    "@stripe/stripe-js": "^1.22.0",
     "@theme-ui/color": "^0.13.1",
     "@theme-ui/components": "0.13.1",
     "@theme-ui/core": "0.13.1",
@@ -31,9 +29,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.25.3",
-    "react-icons": "^4.3.1",
-    "shopify-buy": "^2.14.0",
-    "stripe": "^8.201.0"
+    "react-icons": "^4.3.1"
   },
   "prettier": {
     "requirePragma": false,

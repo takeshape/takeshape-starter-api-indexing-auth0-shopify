@@ -12,16 +12,14 @@ import {
   AspectImage,
   Flex
 } from '@theme-ui/components';
-import orderBy from 'lodash/orderBy';
 import { range } from 'lib/utils/range';
 import { pluralizeText, formatPrice } from 'lib/utils/text';
 import { useCart } from 'lib/cart';
-import { base } from '@theme-ui/presets';
+import { get } from 'lodash';
 
 const showCartTimeout = 3000;
 const oneTimePurchase = 'one-time';
 const recurringPurchase = 'recurring';
-const intervalOrderMap = ['day', 'week', 'month', 'year'];
 
 export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity }) => {
   quantity = quantity ?? 1;
@@ -42,7 +40,9 @@ export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity })
 };
 
 export const ProductImage = (images) => {
-  return images.images[0]?.node.url ? <AspectImage src={images.images[0].node.url} ratio={1} /> : null;
+  const imageUrl = get(images, 'images[0].node.url') ?? '';
+
+  return imageUrl ? <AspectImage src={imageUrl} ratio={1} /> : null;
 };
 
 export const ProductPaymentToggle = ({ purchaseType, onChange }) => {
@@ -98,34 +98,33 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
     actions: { addToCart, openCart, toggleCart }
   } = useCart();
 
-  const [recurringText, setRecurringText] = useState(
-    rechargeProduct
-      ? `every ${pluralizeText(
-          rechargeProduct.subscription_defaults.charge_interval_frequency,
-          rechargeProduct.subscription_defaults.order_interval_unit,
-          `${rechargeProduct.subscription_defaults.order_interval_unit}s`
-        )}`
-      : null
-  );
-
-  const { name, description, images: imageEdgesContainer } = shopifyProduct;
-
-  const shopifyPrice = shopifyProduct.variants.edges[0].node.price;
+  const recurringText = rechargeProduct
+    ? `every ${pluralizeText(
+        rechargeProduct.subscription_defaults.charge_interval_frequency,
+        rechargeProduct.subscription_defaults.order_interval_unit,
+        `${rechargeProduct.subscription_defaults.order_interval_unit}s`
+      )}`
+    : null;
+  const { title, description, images: imageEdgesContainer } = shopifyProduct;
+  //This takes the max variant price if no price is found. Not perfect
+  //but okay for the purposes of a demo for now.
+  const shopifyPrice =
+    get(shopifyProduct, 'variants.edges[0].node.price') ??
+    get(shopifyProduct, '.priceRangeV2.maxVariantPrice.amount') ??
+    0;
 
   const [purchaseType, setPurchaseType] = useState(
     rechargeProduct && rechargeProduct.subscription_defaults.storefront_purchase_options == 'subscription_and_onetime'
       ? recurringPurchase
       : oneTimePurchase
   );
+
   const [quantity, setQuantity] = useState(1);
   const basePrice = Number(shopifyPrice);
   const discount =
     rechargeProduct && rechargeProduct.discount_amount ? (rechargeProduct.discount_amount / 100) * basePrice : 0;
   const subscriptionPrice = basePrice - discount;
   const [price, setPrice] = useState(purchaseType == oneTimePurchase ? basePrice : subscriptionPrice);
-  if (!basePrice) {
-    return null;
-  }
 
   const handleUpdatePurchaseType = (event) => {
     const { value } = event.target;
@@ -151,7 +150,7 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
   };
 
   const handleAddToCart = () => {
-    addToCart({ ...shopifyProduct, price, quantity });
+    addToCart({ ...shopifyProduct, price, quantity, purchaseType });
     if (!isCartOpen) {
       openCart();
       setTimeout(() => toggleCart(), showCartTimeout);
@@ -165,7 +164,7 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
           <ProductImage images={imageEdgesContainer.edges} />
         </Box>
         <Box>
-          <Heading>{name}</Heading>
+          <Heading>{title}</Heading>
         </Box>
         <Box sx={{ flexGrow: 1 }}>
           <Paragraph>{description}</Paragraph>
@@ -209,6 +208,10 @@ export const ProductList = ({ shopifyProducts, rechargeProducts }) => {
       {shopifyProducts.length ? (
         <Grid gap={2} columns={3} sx={{ gridAutoRows: '1fr' }}>
           {shopifyProducts.map((product) => {
+            if (product.node) {
+              //If we had to fetch without the API Index, this is necessary
+              product = product.node;
+            }
             //Find the recharge product that matches the shopify product,
             //if it exists
             const rechargeProduct =

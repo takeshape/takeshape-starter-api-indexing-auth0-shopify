@@ -33,14 +33,13 @@ export const SubscriptionItemCard = ({ subscriptionItem }) => {
       node: { url: product.images[imgSize] }
     };
   });
-
   //Remove first element of the array because it never has a url
   imageArray.shift();
 
   return (
     <Card>
       <ProductImage images={imageArray} />
-      <Heading>{product.name}</Heading>
+      <Heading>{product.title}</Heading>
       <Paragraph>
         <Text>
           {formatPrice('USD', subscriptionItem.unitAmount)} / {subscriptionItem.orderIntervalUnit || ''}
