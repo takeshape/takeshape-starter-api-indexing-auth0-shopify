@@ -15,7 +15,7 @@ import {
 import { range } from 'lib/utils/range';
 import { pluralizeText, formatPrice } from 'lib/utils/text';
 import { useCart } from 'lib/cart';
-import { get as lodashGet } from 'lodash';
+import { get } from 'lodash';
 
 const showCartTimeout = 3000;
 const oneTimePurchase = 'one-time';
@@ -40,7 +40,8 @@ export const ProductPrice = ({ purchaseType, price, rechargeProduct, quantity })
 };
 
 export const ProductImage = (images) => {
-  const imageUrl = lodashGet(images, 'images[0].node.url', null);
+  const imageUrl = get(images, 'images[0].node.url') ?? '';
+
   return imageUrl ? <AspectImage src={imageUrl} ratio={1} /> : null;
 };
 
@@ -107,12 +108,10 @@ export const ProductCard = ({ shopifyProduct, rechargeProduct }) => {
   const { title, description, images: imageEdgesContainer } = shopifyProduct;
   //This takes the max variant price if no price is found. Not perfect
   //but okay for the purposes of a demo for now.
-  const getPriceString = 'variants.edges[0].node.price';
-  const shopifyPrice = lodashGet(
-    shopifyProduct,
-    getPriceString,
-    shopifyProduct?.priceRangeV2?.maxVariantPrice?.amount ?? 0
-  );
+  const shopifyPrice =
+    get(shopifyProduct, 'variants.edges[0].node.price') ??
+    get(shopifyProduct, '.priceRangeV2.maxVariantPrice.amount') ??
+    0;
 
   const [purchaseType, setPurchaseType] = useState(
     rechargeProduct && rechargeProduct.subscription_defaults.storefront_purchase_options == 'subscription_and_onetime'
